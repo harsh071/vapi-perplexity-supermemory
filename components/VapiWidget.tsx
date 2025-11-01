@@ -6,6 +6,9 @@ import { VapiVisualization } from "@/components/VapiVisualization";
 
 export const VapiWidget = () => {
   const [assistantId, setAssistantId] = useState("");
+  const [usePhoneCall, setUsePhoneCall] = useState(false);
+  const [customerNumber, setCustomerNumber] = useState("");
+  const [phoneNumberId, setPhoneNumberId] = useState("");
   const {
     call,
     endCall,
@@ -18,6 +21,9 @@ export const VapiWidget = () => {
     isUserSpeaking,
     status,
     error,
+    audioData,
+    downloadAudio,
+    isListening,
   } = useVapi();
 
   const handleStartCall = async () => {
@@ -25,7 +31,20 @@ export const VapiWidget = () => {
       alert("Please enter an Assistant ID");
       return;
     }
-    await call(assistantId);
+
+    if (usePhoneCall) {
+      if (!customerNumber.trim() || !phoneNumberId.trim()) {
+        alert("Please enter Customer Number and Phone Number ID for phone calls");
+        return;
+      }
+      await call(assistantId, {
+        usePhoneCall: true,
+        customerNumber: customerNumber.trim(),
+        phoneNumberId: phoneNumberId.trim(),
+      });
+    } else {
+      await call(assistantId);
+    }
   };
 
   const handleEndCall = () => {
@@ -35,22 +54,81 @@ export const VapiWidget = () => {
   return (
     <div className="w-full space-y-6">
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 space-y-4">
-        <div className="space-y-2">
-          <label
-            htmlFor="assistant-id"
-            className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-          >
-            Assistant ID
-          </label>
-          <input
-            id="assistant-id"
-            type="text"
-            value={assistantId}
-            onChange={(e) => setAssistantId(e.target.value)}
-            placeholder="Enter your Vapi Assistant ID"
-            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-            disabled={isCallActive}
-          />
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <label
+              htmlFor="assistant-id"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+            >
+              Assistant ID
+            </label>
+            <input
+              id="assistant-id"
+              type="text"
+              value={assistantId}
+              onChange={(e) => setAssistantId(e.target.value)}
+              placeholder="Enter your Vapi Assistant ID"
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+              disabled={isCallActive}
+            />
+          </div>
+
+          <div className="flex items-center gap-2">
+            <input
+              id="use-phone-call"
+              type="checkbox"
+              checked={usePhoneCall}
+              onChange={(e) => setUsePhoneCall(e.target.checked)}
+              disabled={isCallActive}
+              className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+            />
+            <label
+              htmlFor="use-phone-call"
+              className="text-sm font-medium text-gray-700 dark:text-gray-300"
+            >
+              Use Phone Call (enables Call Listen feature)
+            </label>
+          </div>
+
+          {usePhoneCall && (
+            <>
+              <div className="space-y-2">
+                <label
+                  htmlFor="customer-number"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                >
+                  Customer Phone Number
+                </label>
+                <input
+                  id="customer-number"
+                  type="tel"
+                  value={customerNumber}
+                  onChange={(e) => setCustomerNumber(e.target.value)}
+                  placeholder="+1234567890"
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                  disabled={isCallActive}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label
+                  htmlFor="phone-number-id"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                >
+                  Phone Number ID
+                </label>
+                <input
+                  id="phone-number-id"
+                  type="text"
+                  value={phoneNumberId}
+                  onChange={(e) => setPhoneNumberId(e.target.value)}
+                  placeholder="Enter your Vapi Phone Number ID"
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                  disabled={isCallActive}
+                />
+              </div>
+            </>
+          )}
         </div>
 
         <div className="flex gap-4">
@@ -80,9 +158,35 @@ export const VapiWidget = () => {
 
         {status && (
           <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-md">
-            <p className="text-sm text-blue-800 dark:text-blue-200">
-              Status: <span className="font-semibold">{status}</span>
-            </p>
+            <div className="flex items-center justify-between">
+              <p className="text-sm text-blue-800 dark:text-blue-200">
+                Status: <span className="font-semibold">{status}</span>
+              </p>
+              {isListening && (
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                  <span className="text-xs text-green-700 dark:text-green-300 font-medium">
+                    Listening
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {isCallActive && audioData.length > 0 && (
+          <div className="p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-md">
+            <div className="flex items-center justify-between">
+              <p className="text-sm text-green-800 dark:text-green-200">
+                Audio Data: <span className="font-semibold">{audioData.length} chunks received</span>
+              </p>
+              <button
+                onClick={downloadAudio}
+                className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-lg transition-colors"
+              >
+                Download Audio (PCM)
+              </button>
+            </div>
           </div>
         )}
       </div>

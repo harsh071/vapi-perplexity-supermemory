@@ -31,8 +31,19 @@ interface VapiMessage {
   [key: string]: any;
 }
 
+interface AudioData {
+  buffer: ArrayBuffer;
+  receivedAt: number;
+}
+
+interface CallOptions {
+  customerNumber?: string;
+  phoneNumberId?: string;
+  usePhoneCall?: boolean; // If true, use phone call API (supports listen); if false, use web call SDK
+}
+
 interface UseVapiReturn {
-  call: (assistantId: string) => void;
+  call: (assistantId: string, options?: CallOptions) => void;
   endCall: () => void;
   isCallActive: boolean;
   isLoading: boolean;
@@ -43,6 +54,9 @@ interface UseVapiReturn {
   isUserSpeaking: boolean;
   status: string | null;
   error: string | null;
+  audioData: AudioData[];
+  downloadAudio: () => void;
+  isListening: boolean;
 }
 
 export const useVapi = (): UseVapiReturn => {
@@ -55,7 +69,14 @@ export const useVapi = (): UseVapiReturn => {
   const [isUserSpeaking, setIsUserSpeaking] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [audioData, setAudioData] = useState<AudioData[]>([]);
+  const [isListening, setIsListening] = useState(false);
   const vapiRef = useRef<Vapi | null>(null);
+  const isCallActiveRef = useRef(false);
+  const listenWebSocketRef = useRef<WebSocket | null>(null);
+  const audioBufferRef = useRef<ArrayBuffer[]>([]);
+  const callIdRef = useRef<string | null>(null);
+  const controlUrlRef = useRef<string | null>(null);
 
   useEffect(() => {
     const apiKey =
@@ -125,6 +146,7 @@ export const useVapi = (): UseVapiReturn => {
     };
 
     const handleSpeechStart = () => {
+      console.log("Speech started");
       setIsSpeaking(true);
       setStatus("Speaking");
     };
@@ -135,6 +157,7 @@ export const useVapi = (): UseVapiReturn => {
     };
 
     const handleCallStart = () => {
+      isCallActiveRef.current = true;
       setIsCallActive(true);
       setIsLoading(false);
       setError(null);
@@ -144,18 +167,30 @@ export const useVapi = (): UseVapiReturn => {
       setIsSpeaking(false);
       setIsUserSpeaking(false);
       setStatus("Connected");
+      // Clear audio buffer when call starts
+      audioBufferRef.current = [];
+      setAudioData([]);
     };
 
     const handleCallEnd = () => {
+      isCallActiveRef.current = false;
       setIsCallActive(false);
       setIsLoading(false);
       setIsSpeaking(false);
       setIsUserSpeaking(false);
       setVolumeLevel(0);
       setStatus(null);
+      setIsListening(false);
+      
+      // Close WebSocket connection if open
+      if (listenWebSocketRef.current) {
+        listenWebSocketRef.current.close();
+        listenWebSocketRef.current = null;
+      }
     };
 
     const handleError = (err: Error) => {
+      isCallActiveRef.current = false;
       setError(err.message);
       setIsLoading(false);
       setIsCallActive(false);
@@ -177,14 +212,72 @@ export const useVapi = (): UseVapiReturn => {
       vapi.removeListener("call-start", handleCallStart);
       vapi.removeListener("call-end", handleCallEnd);
       vapi.removeListener("error", handleError);
-      if (isCallActive) {
+      if (isCallActiveRef.current) {
         vapi.stop();
       }
+      // Cleanup WebSocket connection
+      if (listenWebSocketRef.current) {
+        listenWebSocketRef.current.close();
+        listenWebSocketRef.current = null;
+      }
     };
-  }, [isCallActive]);
+  }, []);
 
-  const call = async (assistantId: string) => {
-    if (!vapiRef.current || isCallActive) {
+  const connectToListenWebSocket = (listenUrl: string) => {
+    try {
+      const ws = new WebSocket(listenUrl);
+      listenWebSocketRef.current = ws;
+
+      ws.onopen = () => {
+        console.log("WebSocket connection to listen URL established");
+        setIsListening(true);
+        setStatus("Listening to audio stream");
+      };
+
+      ws.onmessage = (event) => {
+        if (event.data instanceof ArrayBuffer) {
+          // Binary PCM audio data
+          const timestamp = Date.now();
+          audioBufferRef.current.push(event.data);
+          
+          setAudioData((prev) => [
+            ...prev,
+            {
+              buffer: event.data,
+              receivedAt: timestamp,
+            },
+          ]);
+        } else {
+          // Text message (JSON)
+          try {
+            const message = JSON.parse(event.data as string);
+            console.log("Received message from listen WebSocket:", message);
+          } catch (err) {
+            console.log("Received text from listen WebSocket:", event.data);
+          }
+        }
+      };
+
+      ws.onerror = (error) => {
+        console.error("WebSocket error:", error);
+        setError("Failed to connect to audio stream");
+        setIsListening(false);
+      };
+
+      ws.onclose = () => {
+        console.log("WebSocket connection closed");
+        setIsListening(false);
+        listenWebSocketRef.current = null;
+      };
+    } catch (err) {
+      console.error("Failed to create WebSocket:", err);
+      setError(err instanceof Error ? err.message : "Failed to connect to audio stream");
+      setIsListening(false);
+    }
+  };
+
+  const call = async (assistantId: string, options?: CallOptions) => {
+    if (isCallActiveRef.current) {
       return;
     }
 
@@ -192,17 +285,157 @@ export const useVapi = (): UseVapiReturn => {
     setError(null);
 
     try {
-      await vapiRef.current.start(assistantId);
+      const apiKey =
+        process.env.NEXT_PUBLIC_VAPI_PUBLIC_KEY ||
+        process.env.NEXT_PUBLIC_VAPI_API_KEY;
+
+      if (!apiKey) {
+        throw new Error("Vapi API key is not set");
+      }
+
+      const usePhoneCall = options?.usePhoneCall ?? false;
+
+      if (usePhoneCall) {
+        // Use phone call API endpoint (supports Call Listen feature)
+        if (!options?.customerNumber || !options?.phoneNumberId) {
+          throw new Error(
+            "Phone number and phone number ID are required for phone calls with listen feature"
+          );
+        }
+
+        const response = await fetch("https://api.vapi.ai/call", {
+          method: "POST",
+          headers: {
+            authorization: `Bearer ${apiKey}`,
+            "content-type": "application/json",
+          },
+          body: JSON.stringify({
+            assistantId,
+            customer: {
+              number: options.customerNumber,
+            },
+            phoneNumberId: options.phoneNumberId,
+          }),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(
+            errorData.message || `Failed to create call: ${response.statusText}`
+          );
+        }
+
+        const callData = await response.json();
+        callIdRef.current = callData.id;
+        
+        // Store control URL for call control features
+        if (callData.monitor?.controlUrl) {
+          controlUrlRef.current = callData.monitor.controlUrl;
+        }
+
+        // Connect to listen WebSocket if listenUrl is available
+        if (callData.monitor?.listenUrl) {
+          connectToListenWebSocket(callData.monitor.listenUrl);
+        }
+
+        // Trigger call-start manually for phone calls
+        isCallActiveRef.current = true;
+        setIsCallActive(true);
+        setIsLoading(false);
+        setError(null);
+        setMessages([]);
+        setTranscripts([]);
+        setVolumeLevel(0);
+        setIsSpeaking(false);
+        setIsUserSpeaking(false);
+        setStatus("Connected");
+        // Clear audio buffer when call starts
+        audioBufferRef.current = [];
+        setAudioData([]);
+      } else {
+        // Use web call SDK (traditional approach, no listen feature)
+        if (!vapiRef.current) {
+          throw new Error("Vapi SDK not initialized");
+        }
+        await vapiRef.current.start(assistantId);
+      }
     } catch (err) {
+      isCallActiveRef.current = false;
       setError(err instanceof Error ? err.message : "Failed to start call");
       setIsLoading(false);
+      setIsListening(false);
     }
   };
 
-  const endCall = () => {
-    if (vapiRef.current && isCallActive) {
+  const endCall = async () => {
+    // Close WebSocket connection first
+    if (listenWebSocketRef.current) {
+      listenWebSocketRef.current.close();
+      listenWebSocketRef.current = null;
+    }
+
+    // If we have a controlUrl, use it to end the phone call
+    if (controlUrlRef.current && callIdRef.current) {
+      try {
+        const apiKey =
+          process.env.NEXT_PUBLIC_VAPI_PUBLIC_KEY ||
+          process.env.NEXT_PUBLIC_VAPI_API_KEY;
+
+        if (apiKey) {
+          await fetch(controlUrlRef.current, {
+            method: "POST",
+            headers: {
+              authorization: `Bearer ${apiKey}`,
+              "content-type": "application/json",
+            },
+            body: JSON.stringify({
+              type: "end-call",
+            }),
+          });
+        }
+      } catch (err) {
+        console.error("Failed to end call via control URL:", err);
+      }
+      controlUrlRef.current = null;
+      callIdRef.current = null;
+    }
+
+    // Stop web call if using SDK
+    if (vapiRef.current && isCallActiveRef.current) {
       vapiRef.current.stop();
     }
+  };
+
+  const downloadAudio = () => {
+    if (audioBufferRef.current.length === 0) {
+      alert("No audio data available to download");
+      return;
+    }
+
+    // Combine all audio buffers into one
+    const totalLength = audioBufferRef.current.reduce(
+      (sum, buffer) => sum + buffer.byteLength,
+      0
+    );
+    const combinedBuffer = new ArrayBuffer(totalLength);
+    const combinedView = new Uint8Array(combinedBuffer);
+
+    let offset = 0;
+    for (const buffer of audioBufferRef.current) {
+      combinedView.set(new Uint8Array(buffer), offset);
+      offset += buffer.byteLength;
+    }
+
+    // Create a Blob and download link
+    const blob = new Blob([combinedBuffer], { type: "audio/pcm" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `vapi-audio-${Date.now()}.pcm`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   };
 
   return {
@@ -217,5 +450,8 @@ export const useVapi = (): UseVapiReturn => {
     isUserSpeaking,
     status,
     error,
+    audioData,
+    downloadAudio,
+    isListening,
   };
 };
