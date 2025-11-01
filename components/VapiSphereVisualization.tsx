@@ -6,54 +6,88 @@ import { OrbitControls } from "@react-three/drei";
 import * as THREE from "three";
 
 interface BubbleProps {
-  position: [number, number, number];
   baseRadius: number;
   volumeLevel: number;
   index: number;
   color: string;
+  originalPosition: [number, number, number];
 }
 
-const Bubble = ({ position, baseRadius, volumeLevel, index, color }: BubbleProps) => {
+const Bubble = ({ 
+  baseRadius, 
+  volumeLevel, 
+  index, 
+  color,
+  originalPosition 
+}: BubbleProps) => {
   const meshRef = useRef<THREE.Mesh>(null);
   const timeRef = useRef(0);
+  const randomPhaseRef = useRef(Math.random() * Math.PI * 2); // Random phase for each bubble
+  const randomSpeedRef = useRef(0.8 + Math.random() * 0.4); // Random pulse speed
+  const scatterDirectionRef = useRef<[number, number, number]>([
+    (Math.random() - 0.5) * 2,
+    (Math.random() - 0.5) * 2,
+    (Math.random() - 0.5) * 2,
+  ]); // Random scatter direction for each bubble
 
   useFrame(() => {
     if (!meshRef.current) return;
     
     timeRef.current += 0.015;
     
-    // Calculate expansion based on volume level (0-100)
-    // More dramatic expansion for higher volumes
-    const volumeMultiplier = 1 + (volumeLevel / 100) * 0.8; // Scale from 1.0 to 1.8
+    // Individual bubble scaling - much more subtle and random
+    // Less dramatic than the overall sphere scaling
+    const individualVolumeMultiplier = 1 + (volumeLevel / 100) * 0.25; // Scale from 1.0 to 1.25
     
-    // Add pulsing animation that varies by bubble position
+    // Random pulsing animation that varies per bubble
     const distanceFromCenter = Math.sqrt(
-      position[0] ** 2 + position[1] ** 2 + position[2] ** 2
+      originalPosition[0] ** 2 + originalPosition[1] ** 2 + originalPosition[2] ** 2
     );
-    const pulse = Math.sin(timeRef.current * 2 + index * 0.1 + distanceFromCenter) * 0.15 + 1;
+    const pulse = Math.sin(
+      timeRef.current * randomSpeedRef.current * 1.5 + 
+      randomPhaseRef.current + 
+      index * 0.05 + 
+      distanceFromCenter * 0.3
+    ) * 0.1 + 1; // Smaller pulse variation
     
-    // Apply the scale with volume-based expansion
-    const scale = baseRadius * volumeMultiplier * pulse;
+    // Apply subtle individual scaling
+    const scale = baseRadius * individualVolumeMultiplier * pulse;
     meshRef.current.scale.setScalar(scale);
     
+    // Dynamic scattering: bubbles move outward when voice is active
+    const scatterAmount = (volumeLevel / 100) * 0.3; // Scatter up to 30% of radius
+    const scatterX = originalPosition[0] + scatterDirectionRef.current[0] * scatterAmount;
+    const scatterY = originalPosition[1] + scatterDirectionRef.current[1] * scatterAmount;
+    const scatterZ = originalPosition[2] + scatterDirectionRef.current[2] * scatterAmount;
+    
+    // Smooth interpolation for position
+    const currentPos = meshRef.current.position;
+    const targetX = scatterX;
+    const targetY = scatterY;
+    const targetZ = scatterZ;
+    
+    currentPos.x += (targetX - currentPos.x) * 0.15;
+    currentPos.y += (targetY - currentPos.y) * 0.15;
+    currentPos.z += (targetZ - currentPos.z) * 0.15;
+    
     // Subtle rotation for visual interest
-    meshRef.current.rotation.x += 0.002;
-    meshRef.current.rotation.y += 0.002;
+    meshRef.current.rotation.x += 0.001;
+    meshRef.current.rotation.y += 0.001;
     
     // Update opacity based on volume (more visible when louder)
     const material = meshRef.current.material as THREE.MeshStandardMaterial;
     if (material) {
-      material.opacity = 0.3 + (volumeLevel / 100) * 0.5;
+      material.opacity = 0.5 + (volumeLevel / 100) * 0.4;
     }
   });
 
   return (
-    <mesh ref={meshRef} position={position}>
+    <mesh ref={meshRef} position={originalPosition}>
       <sphereGeometry args={[baseRadius, 16, 16]} />
       <meshStandardMaterial
         color={color}
         transparent
-        opacity={0.6}
+        opacity={0.7}
         roughness={0.2}
         metalness={0.2}
       />
@@ -72,9 +106,13 @@ const SphereVisualizationScene = ({
   isSpeaking,
   isUserSpeaking,
 }: SphereVisualizationProps) => {
+  const groupRef = useRef<THREE.Group>(null);
+  const timeRef = useRef(0);
+  const targetScaleRef = useRef(1);
+
   const bubbles = useMemo(() => {
-    const count = 300; // Number of bubbles
-    const radius = 3; // Sphere radius
+    const count = 800; // Number of bubbles - increased for higher density
+    const radius = 3.5; // Sphere radius - slightly larger to accommodate more bubbles
     
     const positions: [number, number, number][] = [];
     
@@ -112,6 +150,43 @@ const SphereVisualizationScene = ({
     };
   }, [isUserSpeaking, isSpeaking]);
 
+  // Animate sphere scaling based on voice activity
+  useFrame(() => {
+    if (!groupRef.current) return;
+    
+    timeRef.current += 0.015;
+    
+    // Check if there's active voice activity
+    const isActive = volumeLevel > 5 || isSpeaking || isUserSpeaking;
+    
+    // Calculate target scale based on volume level
+    // Sphere grows from 0.9 (idle) to 1.4 (loud speaking)
+    if (isActive) {
+      targetScaleRef.current = 0.9 + (volumeLevel / 100) * 0.5; // 0.9 to 1.4
+    } else {
+      // Gentle idle pulse when no voice activity - stays at 0.9 with small pulse
+      const idlePulse = Math.sin(timeRef.current * 0.5) * 0.02;
+      targetScaleRef.current = 0.9 + idlePulse; // 0.88 to 0.92 (centered at 0.9)
+    }
+    
+    // Smooth interpolation towards target scale for fluid animation
+    const currentScale = groupRef.current.scale.x;
+    const smoothScale = currentScale + (targetScaleRef.current - currentScale) * 0.12;
+    
+    // Add continuous pulse based on voice activity - creates breathing effect
+    let finalScale = smoothScale;
+    if (isActive) {
+      const voicePulse = Math.sin(timeRef.current * 2.5) * 0.08; // Larger pulse when active
+      finalScale = smoothScale + voicePulse;
+      // Clamp to ensure it doesn't exceed 1.4
+      finalScale = Math.min(finalScale, 1.4);
+    }
+    
+    // Ensure scale stays within bounds
+    finalScale = Math.max(0.88, Math.min(1.4, finalScale));
+    groupRef.current.scale.setScalar(finalScale);
+  });
+
   return (
     <>
       <ambientLight intensity={0.6} />
@@ -119,12 +194,12 @@ const SphereVisualizationScene = ({
       <pointLight position={[-10, -10, -10]} intensity={0.6} />
       <directionalLight position={[0, 5, 5]} intensity={0.5} />
       
-      <group>
+      <group ref={groupRef}>
         {bubbles.map((position, index) => (
           <Bubble
             key={index}
-            position={position}
-            baseRadius={0.08}
+            originalPosition={position}
+            baseRadius={0.18}
             volumeLevel={volumeLevel}
             index={index}
             color={getBubbleColor(index)}
