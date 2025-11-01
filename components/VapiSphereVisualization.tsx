@@ -215,7 +215,7 @@ const SphereVisualizationScene = ({
       </group>
       
       <OrbitControls
-        enableZoom={true}
+        enableZoom={false}
         enablePan={false}
         autoRotate={true}
         autoRotateSpeed={0.5}
