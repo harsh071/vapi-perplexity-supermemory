@@ -116,14 +116,21 @@ const SphereVisualizationScene = ({
     
     const positions: [number, number, number][] = [];
     
-    // Generate positions using spherical distribution
+    // Generate positions with density gradient - dense on outside, sparse on inside
     for (let i = 0; i < count; i++) {
-      // Uniform distribution on sphere surface and interior
+      // Uniform angular distribution
       const u = Math.random();
       const v = Math.random();
       const theta = u * 2.0 * Math.PI; // Azimuth
       const phi = Math.acos(2.0 * v - 1.0); // Polar
-      const r = radius * Math.cbrt(Math.random()); // Cube root for uniform volume distribution
+      
+      // Bias radius toward outer edge for shell effect
+      // Use power function to heavily weight outer radius
+      // Most bubbles will be in outer 40% of radius (creating dense shell)
+      // Inner 60% will be sparse (creating hollow center illusion)
+      const minRadiusRatio = 0.6; // Start bubbles at 60% of radius
+      const biasPower = 0.25; // Lower power = more bias toward outer edge
+      const r = radius * (minRadiusRatio + (1 - minRadiusRatio) * Math.pow(Math.random(), biasPower));
       
       const x = r * Math.sin(phi) * Math.cos(theta);
       const y = r * Math.sin(phi) * Math.sin(theta);
