@@ -112,7 +112,7 @@ const SphereVisualizationScene = ({
 
   const bubbles = useMemo(() => {
     const count = 800; // Number of bubbles - increased for higher density
-    const radius = 3.5; // Sphere radius - slightly larger to accommodate more bubbles
+    const radius = 2.2; // Sphere radius - reduced for smaller, more modest size
     
     const positions: [number, number, number][] = [];
     
@@ -167,13 +167,13 @@ const SphereVisualizationScene = ({
     const isActive = volumeLevel > 5 || isSpeaking || isUserSpeaking;
     
     // Calculate target scale based on volume level
-    // Sphere grows from 0.9 (idle) to 1.4 (loud speaking)
+    // Sphere grows from 0.75 (idle) to 1.1 (loud speaking) - smaller, more contained
     if (isActive) {
-      targetScaleRef.current = 0.9 + (volumeLevel / 100) * 0.5; // 0.9 to 1.4
+      targetScaleRef.current = 0.75 + (volumeLevel / 100) * 0.35; // 0.75 to 1.1
     } else {
-      // Gentle idle pulse when no voice activity - stays at 0.9 with small pulse
-      const idlePulse = Math.sin(timeRef.current * 0.5) * 0.02;
-      targetScaleRef.current = 0.9 + idlePulse; // 0.88 to 0.92 (centered at 0.9)
+      // Gentle idle pulse when no voice activity - stays at 0.75 with small pulse
+      const idlePulse = Math.sin(timeRef.current * 0.5) * 0.015;
+      targetScaleRef.current = 0.75 + idlePulse; // 0.735 to 0.765 (centered at 0.75)
     }
     
     // Smooth interpolation towards target scale for fluid animation
@@ -183,14 +183,14 @@ const SphereVisualizationScene = ({
     // Add continuous pulse based on voice activity - creates breathing effect
     let finalScale = smoothScale;
     if (isActive) {
-      const voicePulse = Math.sin(timeRef.current * 2.5) * 0.08; // Larger pulse when active
+      const voicePulse = Math.sin(timeRef.current * 2.5) * 0.05; // Smaller pulse when active
       finalScale = smoothScale + voicePulse;
-      // Clamp to ensure it doesn't exceed 1.4
-      finalScale = Math.min(finalScale, 1.4);
+      // Clamp to ensure it doesn't exceed 1.1
+      finalScale = Math.min(finalScale, 1.1);
     }
     
     // Ensure scale stays within bounds
-    finalScale = Math.max(0.88, Math.min(1.4, finalScale));
+    finalScale = Math.max(0.73, Math.min(1.1, finalScale));
     groupRef.current.scale.setScalar(finalScale);
   });
 
@@ -232,8 +232,11 @@ export const VapiSphereVisualization = ({
   isUserSpeaking,
 }: SphereVisualizationProps) => {
   return (
-    <div className="w-full h-[500px] bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 rounded-lg overflow-hidden shadow-lg">
-      <Canvas camera={{ position: [0, 0, 8], fov: 60 }}>
+    <div className="w-full h-full bg-transparent">
+      <Canvas 
+        camera={{ position: [0, 0, 10], fov: 50 }}
+        style={{ width: '100%', height: '100%' }}
+      >
         <SphereVisualizationScene
           volumeLevel={volumeLevel}
           isSpeaking={isSpeaking}
