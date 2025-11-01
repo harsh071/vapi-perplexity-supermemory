@@ -5,6 +5,8 @@ A modern Next.js application integrated with Vapi for voice AI capabilities. Thi
 ## Features
 
 - 🎙️ **Real-time Voice Conversations** - Interact with AI assistants using voice
+- 🎤 **STT (Speech-to-Text) Visualization** - Visual indicators for user and AI speech activity
+- 📊 **Audio Level Monitoring** - Real-time volume visualization with waveform display
 - ⚡ **Next.js 15** - Built with the latest Next.js with App Router
 - 🎨 **Modern UI** - Beautiful, responsive interface with TailwindCSS
 - 📱 **Mobile Friendly** - Works seamlessly on all devices
@@ -73,7 +75,8 @@ Open [http://localhost:3000](http://localhost:3000) in your browser to see the a
 │   ├── page.tsx            # Home page
 │   └── globals.css         # Global styles
 ├── components/
-│   └── VapiWidget.tsx      # Main Vapi integration component
+│   ├── VapiWidget.tsx      # Main Vapi integration component
+│   └── VapiVisualization.tsx # STT audio visualization with speech indicators
 ├── hooks/
 │   └── useVapi.ts          # Custom hook for Vapi functionality
 ├── .env.example            # Environment variables template
@@ -102,12 +105,25 @@ For custom implementations, use the `useVapi` hook:
 import { useVapi } from "@/hooks/useVapi";
 
 const MyComponent = () => {
-  const { call, endCall, isCallActive, messages } = useVapi();
+  const { 
+    call, 
+    endCall, 
+    isCallActive, 
+    messages,
+    isUserSpeaking,
+    isSpeaking,
+    volumeLevel
+  } = useVapi();
 
   return (
     <div>
       <button onClick={() => call("assistant-id")}>Start Call</button>
       {isCallActive && <button onClick={endCall}>End Call</button>}
+      <div>
+        User Speaking: {isUserSpeaking ? "🗣️" : "🔇"}
+        AI Speaking: {isSpeaking ? "🗣️" : "🔇"}
+        Volume: {volumeLevel}%
+      </div>
       {messages.map((msg, i) => (
         <div key={i}>{msg.content}</div>
       ))}

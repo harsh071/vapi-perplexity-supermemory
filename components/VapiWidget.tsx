@@ -15,6 +15,7 @@ export const VapiWidget = () => {
     transcripts,
     volumeLevel,
     isSpeaking,
+    isUserSpeaking,
     status,
     error,
   } = useVapi();
@@ -92,6 +93,7 @@ export const VapiWidget = () => {
           transcripts={transcripts}
           volumeLevel={volumeLevel}
           isSpeaking={isSpeaking}
+          isUserSpeaking={isUserSpeaking}
         />
       )}
 

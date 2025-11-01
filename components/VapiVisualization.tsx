@@ -7,12 +7,14 @@ interface VapiVisualizationProps {
   transcripts: TranscriptMessage[];
   volumeLevel: number;
   isSpeaking: boolean;
+  isUserSpeaking: boolean;
 }
 
 export const VapiVisualization = ({
   transcripts,
   volumeLevel,
   isSpeaking,
+  isUserSpeaking,
 }: VapiVisualizationProps) => {
   const volumeBarRef = useRef<HTMLDivElement>(null);
 
@@ -27,16 +29,36 @@ export const VapiVisualization = ({
       {/* Volume Level Visualization */}
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold">Audio Visualization</h3>
-          <div className="flex items-center gap-2">
-            <div
-              className={`w-3 h-3 rounded-full ${
-                isSpeaking ? "bg-green-500 animate-pulse" : "bg-gray-400"
-              }`}
-            />
-            <span className="text-sm text-gray-600 dark:text-gray-400">
-              {isSpeaking ? "Speaking" : "Listening"}
-            </span>
+          <h3 className="text-lg font-semibold">STT Audio Visualization</h3>
+          <div className="flex items-center gap-6">
+            {/* User speaking indicator */}
+            <div className="flex items-center gap-2">
+              <div
+                className={`w-3 h-3 rounded-full ${
+                  isUserSpeaking ? "bg-blue-500 animate-pulse" : "bg-gray-300"
+                }`}
+              />
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                You
+              </span>
+              <span className="text-base">
+                {isUserSpeaking ? "🗣️" : "🔇"}
+              </span>
+            </div>
+            {/* Assistant speaking indicator */}
+            <div className="flex items-center gap-2">
+              <div
+                className={`w-3 h-3 rounded-full ${
+                  isSpeaking ? "bg-green-500 animate-pulse" : "bg-gray-300"
+                }`}
+              />
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                AI
+              </span>
+              <span className="text-base">
+                {isSpeaking ? "🗣️" : "🔇"}
+              </span>
+            </div>
           </div>
         </div>
 
@@ -60,26 +82,31 @@ export const VapiVisualization = ({
           </div>
         </div>
 
-        {/* Volume waveform visualization */}
-        <div className="mt-4 flex items-center justify-center gap-1 h-12">
-          {Array.from({ length: 20 }).map((_, i) => {
-            const barHeight =
-              volumeLevel > 0
-                ? Math.random() * (volumeLevel / 5) + 5
-                : 2;
-            return (
-              <div
-                key={i}
-                className={`w-1 bg-blue-500 rounded-t transition-all duration-75 ${
-                  isSpeaking ? "animate-pulse" : ""
-                }`}
-                style={{
-                  height: `${barHeight}px`,
-                  opacity: volumeLevel > 0 ? 0.6 + volumeLevel / 200 : 0.3,
-                }}
-              />
-            );
-          })}
+        {/* Volume waveform visualization - User STT input */}
+        <div className="mt-4">
+          <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">
+            Your Voice Input (STT)
+          </p>
+          <div className="flex items-center justify-center gap-1 h-12">
+            {Array.from({ length: 20 }).map((_, i) => {
+              const barHeight =
+                volumeLevel > 0
+                  ? Math.random() * (volumeLevel / 5) + 5
+                  : 2;
+              return (
+                <div
+                  key={i}
+                  className={`w-1 bg-blue-500 rounded-t transition-all duration-75 ${
+                    isUserSpeaking ? "animate-pulse" : ""
+                  }`}
+                  style={{
+                    height: `${barHeight}px`,
+                    opacity: volumeLevel > 0 ? 0.6 + volumeLevel / 200 : 0.3,
+                  }}
+                />
+              );
+            })}
+          </div>
         </div>
       </div>
 

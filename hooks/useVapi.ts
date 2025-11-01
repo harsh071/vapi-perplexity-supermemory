@@ -40,6 +40,7 @@ interface UseVapiReturn {
   transcripts: TranscriptMessage[];
   volumeLevel: number;
   isSpeaking: boolean;
+  isUserSpeaking: boolean;
   status: string | null;
   error: string | null;
 }
@@ -51,6 +52,7 @@ export const useVapi = (): UseVapiReturn => {
   const [transcripts, setTranscripts] = useState<TranscriptMessage[]>([]);
   const [volumeLevel, setVolumeLevel] = useState(0);
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const [isUserSpeaking, setIsUserSpeaking] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const vapiRef = useRef<Vapi | null>(null);
@@ -116,7 +118,10 @@ export const useVapi = (): UseVapiReturn => {
     };
 
     const handleVolumeLevel = (volume: number) => {
-      setVolumeLevel(Math.max(0, Math.min(100, volume * 100)));
+      const normalizedVolume = Math.max(0, Math.min(100, volume * 100));
+      setVolumeLevel(normalizedVolume);
+      // User is considered speaking if volume is above threshold
+      setIsUserSpeaking(normalizedVolume > 10);
     };
 
     const handleSpeechStart = () => {
@@ -137,6 +142,7 @@ export const useVapi = (): UseVapiReturn => {
       setTranscripts([]);
       setVolumeLevel(0);
       setIsSpeaking(false);
+      setIsUserSpeaking(false);
       setStatus("Connected");
     };
 
@@ -144,6 +150,7 @@ export const useVapi = (): UseVapiReturn => {
       setIsCallActive(false);
       setIsLoading(false);
       setIsSpeaking(false);
+      setIsUserSpeaking(false);
       setVolumeLevel(0);
       setStatus(null);
     };
@@ -207,6 +214,7 @@ export const useVapi = (): UseVapiReturn => {
     transcripts,
     volumeLevel,
     isSpeaking,
+    isUserSpeaking,
     status,
     error,
   };
