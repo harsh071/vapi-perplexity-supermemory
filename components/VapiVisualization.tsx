@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import type { TranscriptMessage } from "@/hooks/useVapi";
+import { VapiSphereVisualization } from "@/components/VapiSphereVisualization";
 
 interface VapiVisualizationProps {
   transcripts: TranscriptMessage[];
@@ -26,10 +27,10 @@ export const VapiVisualization = ({
 
   return (
     <div className="space-y-6">
-      {/* Volume Level Visualization */}
+      {/* 3D Sphere Visualization */}
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold">STT Audio Visualization</h3>
+          <h3 className="text-lg font-semibold">Voice Visualization</h3>
           <div className="flex items-center gap-6">
             {/* User speaking indicator */}
             <div className="flex items-center gap-2">
@@ -62,7 +63,14 @@ export const VapiVisualization = ({
           </div>
         </div>
 
-        <div className="space-y-2">
+        <VapiSphereVisualization
+          volumeLevel={volumeLevel}
+          isSpeaking={isSpeaking}
+          isUserSpeaking={isUserSpeaking}
+        />
+
+        {/* Volume Level Display */}
+        <div className="mt-4 space-y-2">
           <div className="flex items-center justify-between text-xs text-gray-600 dark:text-gray-400">
             <span>Volume Level</span>
             <span>{Math.round(volumeLevel)}%</span>
@@ -79,33 +87,6 @@ export const VapiVisualization = ({
               }`}
               style={{ width: `${volumeLevel}%` }}
             />
-          </div>
-        </div>
-
-        {/* Volume waveform visualization - User STT input */}
-        <div className="mt-4">
-          <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">
-            Your Voice Input (STT)
-          </p>
-          <div className="flex items-center justify-center gap-1 h-12">
-            {Array.from({ length: 20 }).map((_, i) => {
-              const barHeight =
-                volumeLevel > 0
-                  ? Math.random() * (volumeLevel / 5) + 5
-                  : 2;
-              return (
-                <div
-                  key={i}
-                  className={`w-1 bg-blue-500 rounded-t transition-all duration-75 ${
-                    isUserSpeaking ? "animate-pulse" : ""
-                  }`}
-                  style={{
-                    height: `${barHeight}px`,
-                    opacity: volumeLevel > 0 ? 0.6 + volumeLevel / 200 : 0.3,
-                  }}
-                />
-              );
-            })}
           </div>
         </div>
       </div>
