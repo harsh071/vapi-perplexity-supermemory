@@ -33,13 +33,12 @@ const Bubble = ({
   useFrame(() => {
     if (!meshRef.current) return;
     
-    timeRef.current += 0.015;
+    timeRef.current += 0.015; // Steady time progression
     
-    // Individual bubble scaling - much more subtle and random
-    // Less dramatic than the overall sphere scaling
-    const individualVolumeMultiplier = 1 + (volumeLevel / 100) * 0.25; // Scale from 1.0 to 1.25
+    // Individual bubble scaling - subtle reactive scaling
+    const individualVolumeMultiplier = 1 + (volumeLevel / 100) * 0.2; // Scale from 1.0 to 1.2 - subtle
     
-    // Random pulsing animation that varies per bubble
+    // Random pulsing animation that varies per bubble - more gentle
     const distanceFromCenter = Math.sqrt(
       originalPosition[0] ** 2 + originalPosition[1] ** 2 + originalPosition[2] ** 2
     );
@@ -48,14 +47,14 @@ const Bubble = ({
       randomPhaseRef.current + 
       index * 0.05 + 
       distanceFromCenter * 0.3
-    ) * 0.1 + 1; // Smaller pulse variation
+    ) * 0.08 + 1; // Smaller pulse variation
     
-    // Apply subtle individual scaling
+    // Apply individual scaling
     const scale = baseRadius * individualVolumeMultiplier * pulse;
     meshRef.current.scale.setScalar(scale);
     
-    // Dynamic scattering: bubbles move outward when voice is active
-    const scatterAmount = (volumeLevel / 100) * 0.3; // Scatter up to 30% of radius
+    // Dynamic scattering: bubbles move outward when voice is active - subtle
+    const scatterAmount = (volumeLevel / 100) * 0.2; // Scatter up to 20% of radius - subtle
     const scatterX = originalPosition[0] + scatterDirectionRef.current[0] * scatterAmount;
     const scatterY = originalPosition[1] + scatterDirectionRef.current[1] * scatterAmount;
     const scatterZ = originalPosition[2] + scatterDirectionRef.current[2] * scatterAmount;
@@ -66,18 +65,18 @@ const Bubble = ({
     const targetY = scatterY;
     const targetZ = scatterZ;
     
-    currentPos.x += (targetX - currentPos.x) * 0.15;
-    currentPos.y += (targetY - currentPos.y) * 0.15;
-    currentPos.z += (targetZ - currentPos.z) * 0.15;
+    currentPos.x += (targetX - currentPos.x) * 0.12; // Smooth interpolation
+    currentPos.y += (targetY - currentPos.y) * 0.12;
+    currentPos.z += (targetZ - currentPos.z) * 0.12;
     
-    // Subtle rotation for visual interest
-    meshRef.current.rotation.x += 0.001;
+    // Gentle rotation for visual interest
+    meshRef.current.rotation.x += 0.001; // Gentle rotation
     meshRef.current.rotation.y += 0.001;
     
-    // Update opacity based on volume - glassmorphic range (more visible when louder)
+    // Update opacity based on volume - subtle range
     const material = meshRef.current.material as THREE.MeshStandardMaterial;
     if (material) {
-      material.opacity = 0.5 + (volumeLevel / 100) * 0.4; // 0.5 to 0.9 for better visibility
+      material.opacity = 0.5 + (volumeLevel / 100) * 0.3; // 0.5 to 0.8 - subtle change
     }
   });
 
@@ -162,36 +161,39 @@ const SphereVisualizationScene = ({
   useFrame(() => {
     if (!groupRef.current) return;
     
-    timeRef.current += 0.015;
+    timeRef.current += 0.015; // Steady time progression
     
     // Check if there's active voice activity
     const isActive = volumeLevel > 5 || isSpeaking || isUserSpeaking;
     
     // Calculate target scale based on volume level
-    // Sphere grows from 0.75 (idle) to 1.1 (loud speaking) - smaller, more contained
+    // Sphere grows from 0.75 (idle) to 1.0 (loud speaking) - subtle range like speech
     if (isActive) {
-      targetScaleRef.current = 0.75 + (volumeLevel / 100) * 0.35; // 0.75 to 1.1
+      // Use smoother, more subtle scaling that mimics breathing rhythm
+      const baseVolumeScale = 0.75 + (volumeLevel / 100) * 0.25; // 0.75 to 1.0
+      targetScaleRef.current = baseVolumeScale;
     } else {
-      // Gentle idle pulse when no voice activity - stays at 0.75 with small pulse
+      // Gentle idle pulse when no voice activity
       const idlePulse = Math.sin(timeRef.current * 0.5) * 0.015;
-      targetScaleRef.current = 0.75 + idlePulse; // 0.735 to 0.765 (centered at 0.75)
+      targetScaleRef.current = 0.75 + idlePulse;
     }
     
-    // Smooth interpolation towards target scale for fluid animation
+    // Smooth interpolation towards target scale - softer, more natural
     const currentScale = groupRef.current.scale.x;
-    const smoothScale = currentScale + (targetScaleRef.current - currentScale) * 0.12;
+    const smoothScale = currentScale + (targetScaleRef.current - currentScale) * 0.1; // Slower, smoother
     
-    // Add continuous pulse based on voice activity - creates breathing effect
+    // Add subtle continuous pulse - mimics speech rhythm
     let finalScale = smoothScale;
     if (isActive) {
-      const voicePulse = Math.sin(timeRef.current * 2.5) * 0.05; // Smaller pulse when active
+      // Slower pulse rate that mimics human speech pattern
+      const voicePulse = Math.sin(timeRef.current * 2.0) * 0.03; // Subtle pulse
       finalScale = smoothScale + voicePulse;
-      // Clamp to ensure it doesn't exceed 1.1
-      finalScale = Math.min(finalScale, 1.1);
+      // Clamp to ensure it doesn't exceed max
+      finalScale = Math.min(finalScale, 1.05);
     }
     
     // Ensure scale stays within bounds
-    finalScale = Math.max(0.73, Math.min(1.1, finalScale));
+    finalScale = Math.max(0.73, Math.min(1.05, finalScale));
     groupRef.current.scale.setScalar(finalScale);
   });
 
