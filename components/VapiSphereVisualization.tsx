@@ -74,10 +74,10 @@ const Bubble = ({
     meshRef.current.rotation.x += 0.001;
     meshRef.current.rotation.y += 0.001;
     
-    // Update opacity based on volume (more visible when louder)
+    // Update opacity based on volume - glassmorphic range (more visible when louder)
     const material = meshRef.current.material as THREE.MeshStandardMaterial;
     if (material) {
-      material.opacity = 0.5 + (volumeLevel / 100) * 0.4;
+      material.opacity = 0.5 + (volumeLevel / 100) * 0.4; // 0.5 to 0.9 for better visibility
     }
   });
 
@@ -87,9 +87,10 @@ const Bubble = ({
       <meshStandardMaterial
         color={color}
         transparent
-        opacity={0.7}
-        roughness={0.2}
-        metalness={0.2}
+        opacity={0.6}
+        roughness={0.1}
+        metalness={0.0}
+        envMapIntensity={0.5}
       />
     </mesh>
   );
@@ -142,13 +143,13 @@ const SphereVisualizationScene = ({
     return positions;
   }, []);
 
-  // Determine base color palette based on who is speaking
+  // Determine base color palette based on who is speaking - Glassmorphic colors
   const getBubbleColor = useMemo(() => {
     const baseColorPalette = isUserSpeaking 
-      ? ["#4169E1", "#6495ED", "#87CEEB", "#ADD8E6"] // Blue tones for user
+      ? ["#E0E7FF", "#C7D2FE", "#A5B4FC", "#818CF8"] // Soft indigo/blue glass tones for user
       : isSpeaking 
-      ? ["#50C878", "#7FFFD4", "#90EE90", "#98FB98"] // Green tones for AI
-      : ["#87CEEB", "#B0E0E6", "#ADD8E6", "#E0F6FF"]; // Sky blue default
+      ? ["#DBEAFE", "#BFDBFE", "#93C5FD", "#60A5FA"] // Soft blue glass tones for AI
+      : ["#F0F9FF", "#E0F2FE", "#BAE6FD", "#7DD3FC"]; // Light cyan/blue glass default
     
     return (index: number): string => {
       // Vary color based on bubble position for visual interest

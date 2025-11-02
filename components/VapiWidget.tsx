@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useVapi } from "@/hooks/useVapi";
 import { VapiSphereVisualization } from "@/components/VapiSphereVisualization";
 import { Settings, Upload, X, Mic, MicOff } from "lucide-react";
@@ -12,6 +12,21 @@ export const VapiWidget = () => {
   const [phoneNumberId, setPhoneNumberId] = useState("");
   const [showSettings, setShowSettings] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
+  
+  // Load configuration from environment variables on mount
+  useEffect(() => {
+    const envAssistantId = process.env.NEXT_PUBLIC_VAPI_ASSISTANT_ID;
+    const envPhoneNumberId = process.env.NEXT_PUBLIC_VAPI_PHONE_NUMBER_ID;
+    
+    if (envAssistantId) {
+      setAssistantId(envAssistantId);
+    }
+    
+    if (envPhoneNumberId) {
+      setPhoneNumberId(envPhoneNumberId);
+    }
+  }, []);
+
   const {
     call,
     endCall,
@@ -66,12 +81,12 @@ export const VapiWidget = () => {
   if (!isCallActive) {
     return (
       <div className="min-h-screen flex items-center justify-center p-8">
-        <div className="w-full max-w-md bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-8 space-y-6">
+        <div className="w-full max-w-md bg-white/30 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/40 p-8 space-y-6">
           <div className="text-center space-y-2">
-            <h1 className="text-2xl font-semibold text-gray-800">
+            <h1 className="text-2xl font-semibold text-slate-800">
               Voice Assistant
             </h1>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-slate-600">
               Enter your Assistant ID to begin
             </p>
           </div>
@@ -80,7 +95,7 @@ export const VapiWidget = () => {
             <div className="space-y-2">
               <label
                 htmlFor="assistant-id"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-sm font-medium text-slate-700"
               >
                 Assistant ID
               </label>
@@ -90,7 +105,7 @@ export const VapiWidget = () => {
                 value={assistantId}
                 onChange={(e) => setAssistantId(e.target.value)}
                 placeholder="Enter your Vapi Assistant ID"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                className="w-full px-4 py-3 bg-white/50 backdrop-blur-sm border border-white/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 text-slate-800 placeholder:text-slate-400 transition-all"
               />
             </div>
 
@@ -100,11 +115,11 @@ export const VapiWidget = () => {
                 type="checkbox"
                 checked={usePhoneCall}
                 onChange={(e) => setUsePhoneCall(e.target.checked)}
-                className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                className="w-4 h-4 text-indigo-600 border-slate-300 rounded focus:ring-indigo-500 bg-white/50"
               />
               <label
                 htmlFor="use-phone-call"
-                className="text-sm font-medium text-gray-700"
+                className="text-sm font-medium text-slate-700"
               >
                 Use Phone Call
               </label>
@@ -115,7 +130,7 @@ export const VapiWidget = () => {
                 <div className="space-y-2">
                   <label
                     htmlFor="customer-number"
-                    className="block text-sm font-medium text-gray-700"
+                    className="block text-sm font-medium text-slate-700"
                   >
                     Customer Phone Number
                   </label>
@@ -125,14 +140,14 @@ export const VapiWidget = () => {
                     value={customerNumber}
                     onChange={(e) => setCustomerNumber(e.target.value)}
                     placeholder="+1234567890"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                    className="w-full px-4 py-3 bg-white/50 backdrop-blur-sm border border-white/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 text-slate-800 placeholder:text-slate-400 transition-all"
                   />
                 </div>
 
                 <div className="space-y-2">
                   <label
                     htmlFor="phone-number-id"
-                    className="block text-sm font-medium text-gray-700"
+                    className="block text-sm font-medium text-slate-700"
                   >
                     Phone Number ID
                   </label>
@@ -142,7 +157,7 @@ export const VapiWidget = () => {
                     value={phoneNumberId}
                     onChange={(e) => setPhoneNumberId(e.target.value)}
                     placeholder="Enter your Vapi Phone Number ID"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                    className="w-full px-4 py-3 bg-white/50 backdrop-blur-sm border border-white/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 text-slate-800 placeholder:text-slate-400 transition-all"
                   />
                 </div>
               </>
@@ -150,15 +165,15 @@ export const VapiWidget = () => {
           </div>
 
           {error && (
-            <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
-              <p className="text-sm text-red-800">{error}</p>
+            <div className="p-3 bg-red-500/20 backdrop-blur-sm border border-red-500/30 rounded-xl">
+              <p className="text-sm text-red-700">{error}</p>
             </div>
           )}
 
           <button
             onClick={handleStartCall}
             disabled={isLoading || !assistantId.trim()}
-            className="w-full px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition-colors"
+            className="w-full px-6 py-3 bg-indigo-600/90 backdrop-blur-sm hover:bg-indigo-700/90 disabled:bg-slate-400/50 disabled:cursor-not-allowed text-white font-semibold rounded-xl transition-all shadow-lg shadow-indigo-500/30 border border-indigo-400/30"
           >
             {isLoading ? "Connecting..." : "Start Call"}
           </button>
@@ -173,20 +188,20 @@ export const VapiWidget = () => {
       {/* Settings Icon - Top Right */}
       <button
         onClick={() => setShowSettings(!showSettings)}
-        className="absolute top-6 right-6 w-10 h-10 flex items-center justify-center bg-gray-800/80 hover:bg-gray-900 rounded-full transition-colors z-10"
+        className="absolute top-6 right-6 w-10 h-10 flex items-center justify-center bg-white/30 backdrop-blur-xl hover:bg-white/40 rounded-full transition-all z-10 border border-white/40 shadow-lg shadow-slate-500/10"
         aria-label="Settings"
       >
-        <Settings className="w-5 h-5 text-white" />
+        <Settings className="w-5 h-5 text-slate-700" />
       </button>
 
       {/* Settings Panel */}
       {showSettings && (
-        <div className="absolute top-20 right-6 bg-white/95 backdrop-blur-sm rounded-lg shadow-xl p-4 min-w-[200px] z-20">
+        <div className="absolute top-20 right-6 bg-white/40 backdrop-blur-xl rounded-2xl shadow-2xl p-4 min-w-[200px] z-20 border border-white/50">
           <div className="space-y-2">
-            <p className="text-sm font-semibold text-gray-800 mb-2">Settings</p>
-            <p className="text-xs text-gray-600">Status: {status || "Connected"}</p>
+            <p className="text-sm font-semibold text-slate-800 mb-2">Settings</p>
+            <p className="text-xs text-slate-600">Status: {status || "Connected"}</p>
             {error && (
-              <p className="text-xs text-red-600">{error}</p>
+              <p className="text-xs text-red-700">{error}</p>
             )}
           </div>
         </div>
@@ -195,7 +210,7 @@ export const VapiWidget = () => {
       {/* Share Icon - Mid Left (Upload icon) */}
       <button
         onClick={handleShare}
-        className="absolute left-6 top-1/2 -translate-y-1/2 w-12 h-12 flex items-center justify-center bg-blue-600 hover:bg-blue-700 rounded-full shadow-lg transition-colors z-10"
+        className="absolute left-6 top-1/2 -translate-y-1/2 w-12 h-12 flex items-center justify-center bg-indigo-600/80 backdrop-blur-sm hover:bg-indigo-700/80 rounded-full shadow-lg shadow-indigo-500/30 transition-all z-10 border border-indigo-400/30"
         aria-label="Share"
       >
         <Upload className="w-6 h-6 text-white" />
@@ -217,26 +232,26 @@ export const VapiWidget = () => {
         {/* End Call Button (X) */}
         <button
           onClick={handleEndCall}
-          className="w-14 h-14 flex items-center justify-center bg-gray-200 hover:bg-gray-300 rounded-full shadow-lg transition-colors"
+          className="w-14 h-14 flex items-center justify-center bg-white/40 backdrop-blur-xl hover:bg-white/50 rounded-full shadow-lg shadow-slate-500/20 transition-all border border-white/50"
           aria-label="End Call"
         >
-          <X className="w-6 h-6 text-gray-800" />
+          <X className="w-6 h-6 text-slate-700" />
         </button>
 
         {/* Mute/Unmute Button (Microphone) */}
         <button
           onClick={() => setIsMuted(!isMuted)}
-          className={`w-14 h-14 flex items-center justify-center rounded-full shadow-lg transition-colors ${
+          className={`w-14 h-14 flex items-center justify-center rounded-full shadow-lg transition-all border ${
             isMuted
-              ? "bg-red-500 hover:bg-red-600"
-              : "bg-gray-200 hover:bg-gray-300"
+              ? "bg-red-500/80 backdrop-blur-sm hover:bg-red-600/80 border-red-400/30 shadow-red-500/30"
+              : "bg-white/40 backdrop-blur-xl hover:bg-white/50 border-white/50 shadow-slate-500/20"
           }`}
           aria-label={isMuted ? "Unmute" : "Mute"}
         >
           {isMuted ? (
             <MicOff className="w-6 h-6 text-white" />
           ) : (
-            <Mic className="w-6 h-6 text-gray-800" />
+            <Mic className="w-6 h-6 text-slate-700" />
           )}
         </button>
       </div>

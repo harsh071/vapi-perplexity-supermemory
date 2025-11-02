@@ -4,7 +4,7 @@ import { VapiWidget } from "@/components/VapiWidget";
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-gradient-to-br from-yellow-50 via-amber-50 to-orange-50">
+    <main className="min-h-screen bg-gradient-to-br from-slate-100 via-blue-50 to-indigo-100">
       <VapiWidget />
     </main>
   );
