@@ -11,6 +11,7 @@ A modern Next.js application integrated with **Vapi** and **ElevenLabs** for voi
 - 🎨 **Modern UI** - Beautiful, responsive interface with TailwindCSS
 - 📱 **Mobile Friendly** - Works seamlessly on all devices
 - 🔒 **Type Safe** - Full TypeScript support
+- 🛡️ **Secure API Key Handling** - Phone calls proxied through secure API routes
 - 🌙 **Dark Mode** - Automatic dark mode support
 - 🔀 **Multi-Platform Support** - Toggle between Vapi and ElevenLabs integrations
 
@@ -35,25 +36,26 @@ pnpm install
 
 ### 2. Set Up Environment Variables
 
-Create a `.env.local` file in the root directory:
+Create a `.env.local` file in the root directory. See `ENV_TEMPLATE.md` for a detailed template.
 
-```bash
-cp .env.example .env.local
-```
-
-Edit `.env.local` and add your API keys:
+Add your API keys to `.env.local`:
 
 ```env
 # Vapi Configuration
 NEXT_PUBLIC_VAPI_PUBLIC_KEY=your_vapi_public_key_here
-# OR
-NEXT_PUBLIC_VAPI_API_KEY=your_vapi_api_key_here
+VAPI_API_KEY=your_vapi_api_key_here  # For phone calls (stays on server)
 NEXT_PUBLIC_VAPI_ASSISTANT_ID=your_vapi_assistant_id_here
 
 # ElevenLabs Configuration
 NEXT_PUBLIC_ELEVENLABS_API_KEY=your_elevenlabs_api_key_here
+ELEVENLABS_API_KEY=your_elevenlabs_api_key_here  # For server-side token generation
 NEXT_PUBLIC_ELEVENLABS_AGENT_ID=your_elevenlabs_agent_id_here
 ```
+
+**Important Security Notes:**
+- `NEXT_PUBLIC_*` keys are exposed to browsers - use public keys with limited permissions
+- Server-side keys (without `NEXT_PUBLIC_`) are secure and only used in API routes
+- Phone call requests now go through secure Next.js API routes (`/api/vapi/*`)
 
 ### 3. Run the Development Server
 
@@ -88,6 +90,12 @@ Open [http://localhost:3000](http://localhost:3000) in your browser to see the a
 
 ```
 ├── app/
+│   ├── api/                # Next.js API routes (secure server-side)
+│   │   ├── vapi/
+│   │   │   ├── call/       # Vapi phone call proxy
+│   │   │   └── control/    # Vapi call control proxy
+│   │   └── elevenlabs/
+│   │       └── token/      # ElevenLabs token generation proxy
 │   ├── layout.tsx          # Root layout
 │   ├── page.tsx            # Home page with platform toggle
 │   └── globals.css         # Global styles
@@ -99,7 +107,7 @@ Open [http://localhost:3000](http://localhost:3000) in your browser to see the a
 ├── hooks/
 │   ├── useVapi.ts          # Custom hook for Vapi functionality
 │   └── useElevenLabs.ts    # Custom hook for ElevenLabs functionality
-├── .env.example            # Environment variables template
+├── ENV_TEMPLATE.md         # Environment variables template
 ├── INTEGRATION_NOTES.md    # Detailed ElevenLabs integration notes
 └── package.json            # Dependencies and scripts
 ```
@@ -156,20 +164,53 @@ const MyComponent = () => {
 ## Environment Variables
 
 ### Vapi Configuration
-| Variable | Description | Required |
-|----------|-------------|----------|
-| `NEXT_PUBLIC_VAPI_PUBLIC_KEY` | Your Vapi public key (recommended for client-side) | Yes* |
-| `NEXT_PUBLIC_VAPI_API_KEY` | Your Vapi API key (alternative) | Yes* |
-| `NEXT_PUBLIC_VAPI_ASSISTANT_ID` | Your Vapi Assistant ID | Recommended |
-| `NEXT_PUBLIC_VAPI_PHONE_NUMBER_ID` | Your Vapi Phone Number ID (for phone calls) | Optional |
+| Variable | Description | Required | Security |
+|----------|-------------|----------|----------|
+| `NEXT_PUBLIC_VAPI_PUBLIC_KEY` | Your Vapi public key for web calls | Yes* | Exposed to browser |
+| `VAPI_API_KEY` | Your Vapi API key for phone calls | Yes* | Server-only |
+| `NEXT_PUBLIC_VAPI_ASSISTANT_ID` | Your Vapi Assistant ID | Recommended | Exposed to browser |
+| `NEXT_PUBLIC_VAPI_PHONE_NUMBER_ID` | Your Vapi Phone Number ID | Optional | Exposed to browser |
 
-*You need at least one of these keys. Public key is recommended for client-side usage.
+*You need at least the public key for web calls. API key needed for phone calls.
 
 ### ElevenLabs Configuration
-| Variable | Description | Required |
-|----------|-------------|----------|
-| `NEXT_PUBLIC_ELEVENLABS_API_KEY` | Your ElevenLabs API key | Yes |
-| `NEXT_PUBLIC_ELEVENLABS_AGENT_ID` | Your ElevenLabs Agent ID | Recommended |
+| Variable | Description | Required | Security |
+|----------|-------------|----------|----------|
+| `NEXT_PUBLIC_ELEVENLABS_API_KEY` | Your ElevenLabs API key | Yes | Exposed to browser |
+| `ELEVENLABS_API_KEY` | Server-side API key for token generation | Optional | Server-only |
+| `NEXT_PUBLIC_ELEVENLABS_AGENT_ID` | Your ElevenLabs Agent ID | Recommended | Exposed to browser |
+
+## Security
+
+This project implements security best practices to protect API keys:
+
+### ✅ Implemented Security Features
+
+1. **API Route Proxying**: Vapi phone calls now go through Next.js API routes (`/api/vapi/call`, `/api/vapi/control`)
+   - Server-side API keys never exposed to the browser
+   - Direct API calls from client removed
+
+2. **Environment Variable Separation**:
+   - `NEXT_PUBLIC_*` variables: Exposed to browser (use public keys only)
+   - Server-only variables: Never leave the server (API routes only)
+
+3. **HTTPS Enforcement**: All API communications encrypted in transit
+
+### ⚠️ Security Considerations
+
+**Client-Side Limitations**:
+- Vapi Web SDK and ElevenLabs React SDK require client-side public keys
+- These are embedded in the browser bundle
+- Use public keys with minimal permissions
+
+**Best Practices**:
+- Never commit `.env.local` to version control
+- Use public keys with limited scopes/permissions
+- Rotate keys periodically
+- Monitor API usage for unauthorized access
+- Use HTTPS in production
+
+See `ENV_TEMPLATE.md` for detailed security notes.
 
 ## Available Scripts
 

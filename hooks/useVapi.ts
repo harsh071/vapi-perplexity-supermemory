@@ -303,10 +303,10 @@ export const useVapi = (): UseVapiReturn => {
           );
         }
 
-        const response = await fetch("https://api.vapi.ai/call", {
+        // Use Next.js API route to proxy the request and keep API key secure
+        const response = await fetch("/api/vapi/call", {
           method: "POST",
           headers: {
-            authorization: `Bearer ${apiKey}`,
             "content-type": "application/json",
           },
           body: JSON.stringify({
@@ -377,22 +377,17 @@ export const useVapi = (): UseVapiReturn => {
     // If we have a controlUrl, use it to end the phone call
     if (controlUrlRef.current && callIdRef.current) {
       try {
-        const apiKey =
-          process.env.NEXT_PUBLIC_VAPI_PUBLIC_KEY ||
-          process.env.NEXT_PUBLIC_VAPI_API_KEY;
-
-        if (apiKey) {
-          await fetch(controlUrlRef.current, {
-            method: "POST",
-            headers: {
-              authorization: `Bearer ${apiKey}`,
-              "content-type": "application/json",
-            },
-            body: JSON.stringify({
-              type: "end-call",
-            }),
-          });
-        }
+        // Use Next.js API route to proxy the request and keep API key secure
+        await fetch("/api/vapi/control", {
+          method: "POST",
+          headers: {
+            "content-type": "application/json",
+          },
+          body: JSON.stringify({
+            controlUrl: controlUrlRef.current,
+            action: { type: "end-call" },
+          }),
+        });
       } catch (err) {
         console.error("Failed to end call via control URL:", err);
       }
