@@ -62,7 +62,11 @@
 
 ## 🎯 Demo
 
-![Voice AI Studio Demo](https://via.placeholder.com/800x400?text=Voice+AI+Studio+Demo)
+![Voice AI Studio Demo]([https://via.placeholder.com/800x400?text=Voice+AI+Studio+Demo](https://youtu.be/6qZwBoyCqyk))
+
+
+https://github.com/user-attachments/assets/3de419f3-74e6-47f7-a870-348fbaad91ba
+
 
 **Features Shown:**
 - 3D sphere visualization responding to audio
