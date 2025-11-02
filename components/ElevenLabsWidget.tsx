@@ -13,7 +13,7 @@ export const ElevenLabsWidget = () => {
   // Load configuration from environment variables on mount
   useEffect(() => {
     const envAgentId = process.env.NEXT_PUBLIC_ELEVENLABS_AGENT_ID;
-    
+      
     if (envAgentId) {
       setAgentId(envAgentId);
     }

@@ -11,6 +11,7 @@
   "dependencies": {
     "@daily-co/daily-js": "^0.85.0",
     "@elevenlabs/elevenlabs-js": "^2.21.0",
+    "@elevenlabs/react": "^0.9.1",
     "@react-three/drei": "^10.7.6",
     "@react-three/fiber": "^9.4.0",
     "@vapi-ai/web": "^1.0.0",
