@@ -38,6 +38,12 @@ ELEVENLABS_API_KEY=your_elevenlabs_api_key_here
 
 # Optional: Agent ID to auto-load in the UI
 NEXT_PUBLIC_ELEVENLABS_AGENT_ID=your_elevenlabs_agent_id_here
+
+# ============================================
+# Perplexity Configuration
+# ============================================
+# For search functionality via Vapi assistant
+PERPLEXITY_API_KEY=your_perplexity_api_key_here
 ```
 
 ## How API Keys Are Used
@@ -49,6 +55,9 @@ NEXT_PUBLIC_ELEVENLABS_AGENT_ID=your_elevenlabs_agent_id_here
 ### ElevenLabs
 - **Client-side (React SDK)**: `NEXT_PUBLIC_ELEVENLABS_API_KEY` - Required by the `useConversation` hook
 - **Server-side (API routes)**: `ELEVENLABS_API_KEY` - Used by `/api/elevenlabs/token` if implementing custom WebRTC flow
+
+### Perplexity
+- **Server-side (API routes)**: `PERPLEXITY_API_KEY` - Used by `/api/perplexity/search` and `/api/vapi/perplexity-webhook` for search functionality
 
 ## Getting Your API Keys
 
@@ -62,4 +71,11 @@ NEXT_PUBLIC_ELEVENLABS_AGENT_ID=your_elevenlabs_agent_id_here
 1. Go to [ElevenLabs Dashboard](https://elevenlabs.io/app)
 2. Navigate to Settings → API Keys
 3. Copy your API key
+
+### Perplexity
+1. Go to [Perplexity API Platform](https://www.perplexity.ai/api-platform)
+2. Sign up or log in to your account
+3. Navigate to API Keys section
+4. Create a new API key
+5. Copy your API key
 

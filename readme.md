@@ -1,283 +1,363 @@
-# Vapi Next.js Integration
+<div align="center">
 
-A modern Next.js application integrated with **Vapi** and **ElevenLabs** for voice AI capabilities. This app provides a web-based voice assistant interface that allows users to interact with AI through real-time voice conversations using either platform.
+# 🎙️ Voice AI Studio
 
-## Features
+<div align="center">
 
-- 🎙️ **Real-time Voice Conversations** - Interact with AI assistants using voice (Vapi & ElevenLabs)
-- 🎤 **STT (Speech-to-Text) Visualization** - Visual indicators for user and AI speech activity
-- 📊 **Audio Level Monitoring** - Real-time volume visualization with waveform display
-- ⚡ **Next.js 15** - Built with the latest Next.js with App Router
-- 🎨 **Modern UI** - Beautiful, responsive interface with TailwindCSS
-- 📱 **Mobile Friendly** - Works seamlessly on all devices
-- 🔒 **Type Safe** - Full TypeScript support
-- 🛡️ **Secure API Key Handling** - Phone calls proxied through secure API routes
-- 🌙 **Dark Mode** - Automatic dark mode support
-- 🔀 **Multi-Platform Support** - Toggle between Vapi and ElevenLabs integrations
+**A beautiful, production-ready voice AI platform integrating Vapi, ElevenLabs, and Perplexity**
 
-## Prerequisites
+[![Next.js](https://img.shields.io/badge/Next.js-15-black)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.7-blue)](https://www.typescriptlang.org/)
+[![React](https://img.shields.io/badge/React-19-blue)](https://react.dev/)
+[![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
-- Node.js 18+ installed
-- npm, yarn, or pnpm package manager
-- **For Vapi**: Vapi API key ([Get one here](https://dashboard.vapi.ai)) and Vapi Assistant ID
-- **For ElevenLabs**: ElevenLabs API key ([Get one here](https://elevenlabs.io)) and Agent ID
+[Features](#features) • [Quick Start](#quick-start) • [Documentation](#documentation) • [Contributing](#contributing)
 
-## Getting Started
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/yourusername/VAPI_MEM)
 
-### 1. Install Dependencies
+</div>
+
+</div>
+
+---
+
+## ✨ Features
+
+### 🎤 Voice Platforms
+- **Vapi Integration** - Full-featured voice assistant with WebRTC support
+- **ElevenLabs** - Alternative voice platform with conversational AI
+- **Easy Toggle** - Switch between platforms with a single click
+
+### 🔍 Real-time Search
+- **Perplexity Integration** - Web search powered by advanced AI
+- **Voice-Optimized Responses** - Natural language answers perfect for audio
+- **Source Attribution** - Transparent citations for every response
+
+### 🎨 Beautiful UI/UX
+- **3D Visualizations** - Interactive sphere visualization using Three.js
+- **Real-time Audio Monitoring** - Waveforms and volume meters
+- **Speech Indicators** - Visual feedback for user and AI speech
+- **Glassmorphic Design** - Modern, glass-like aesthetic
+- **Responsive** - Works beautifully on desktop and mobile
+
+### 🛡️ Security & Performance
+- **Secure API Key Management** - Server-side proxying prevents key exposure
+- **Type-Safe** - Full TypeScript support throughout
+- **Production Ready** - Optimized for deployment
+- **Mobile Friendly** - PWA-ready with offline capabilities
+
+### 🚀 Developer Experience
+- **Modern Stack** - Next.js 15, React 19, TailwindCSS
+- **Custom Hooks** - Reusable `useVapi` and `useElevenLabs` hooks
+- **Clean Architecture** - Well-organized, maintainable codebase
+- **Comprehensive Docs** - Detailed integration guides
+
+---
+
+## 🎯 Demo
+
+![Voice AI Studio Demo](https://via.placeholder.com/800x400?text=Voice+AI+Studio+Demo)
+
+**Features Shown:**
+- 3D sphere visualization responding to audio
+- Real-time speech-to-text indicators
+- Beautiful glassmorphic interface
+- Multi-platform voice integration
+
+---
+
+## 🚀 Quick Start
+
+### Prerequisites
+
+- **Node.js 18+** 
+- **npm** | **yarn** | **pnpm**
+
+### Installation
 
 ```bash
+# Clone the repository
+git clone https://github.com/yourusername/VAPI_MEM.git
+cd VAPI_MEM
+
+# Install dependencies
 npm install
-# or
-yarn install
-# or
-pnpm install
+
+# Set up environment variables
+cp ENV_TEMPLATE.md .env.local
+# Edit .env.local with your API keys
+
+# Run the development server
+npm run dev
 ```
 
-### 2. Set Up Environment Variables
+Open [http://localhost:3000](http://localhost:3000) to see the application.
 
-Create a `.env.local` file in the root directory. See `ENV_TEMPLATE.md` for a detailed template.
+### Environment Setup
 
-Add your API keys to `.env.local`:
+Create a `.env.local` file in the root directory:
 
 ```env
-# Vapi Configuration
-NEXT_PUBLIC_VAPI_PUBLIC_KEY=your_vapi_public_key_here
-VAPI_API_KEY=your_vapi_api_key_here  # For phone calls (stays on server)
-NEXT_PUBLIC_VAPI_ASSISTANT_ID=your_vapi_assistant_id_here
+# Required: Vapi Configuration
+NEXT_PUBLIC_VAPI_PUBLIC_KEY=your_vapi_public_key
+VAPI_API_KEY=your_vapi_api_key
+NEXT_PUBLIC_VAPI_ASSISTANT_ID=your_assistant_id
 
-# ElevenLabs Configuration
-NEXT_PUBLIC_ELEVENLABS_API_KEY=your_elevenlabs_api_key_here
-ELEVENLABS_API_KEY=your_elevenlabs_api_key_here  # For server-side token generation
-NEXT_PUBLIC_ELEVENLABS_AGENT_ID=your_elevenlabs_agent_id_here
+# Required: ElevenLabs Configuration
+NEXT_PUBLIC_ELEVENLABS_API_KEY=your_elevenlabs_key
+NEXT_PUBLIC_ELEVENLABS_AGENT_ID=your_agent_id
+
+# Optional: Perplexity (for web search)
+PERPLEXITY_API_KEY=your_perplexity_key
 ```
 
-**Important Security Notes:**
-- `NEXT_PUBLIC_*` keys are exposed to browsers - use public keys with limited permissions
-- Server-side keys (without `NEXT_PUBLIC_`) are secure and only used in API routes
-- Phone call requests now go through secure Next.js API routes (`/api/vapi/*`)
+**Get Your API Keys:**
+- [Vapi Dashboard](https://dashboard.vapi.ai)
+- [ElevenLabs Dashboard](https://elevenlabs.io/app)
+- [Perplexity API Platform](https://www.perplexity.ai/api-platform)
 
-### 3. Run the Development Server
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-```
+## 📖 Usage
 
-Open [http://localhost:3000](http://localhost:3000) in your browser to see the application.
-
-### 4. Start a Voice Call
-
-**Using Vapi:**
-1. Click the "Vapi" button at the top
-2. Enter your Vapi Assistant ID in the input field
-3. Click "Start Call" to begin a voice conversation
-
-**Using ElevenLabs:**
-1. Click the "ElevenLabs" button at the top
-2. Enter your ElevenLabs Agent ID in the input field
-3. Click "Start Call" to begin a voice conversation
-
-**For both platforms:**
-- Speak naturally - the assistant will respond in real-time
-- Click "End Call" when you're done
-- Toggle between platforms using the top buttons
-
-## Project Structure
-
-```
-├── app/
-│   ├── api/                # Next.js API routes (secure server-side)
-│   │   ├── vapi/
-│   │   │   ├── call/       # Vapi phone call proxy
-│   │   │   └── control/    # Vapi call control proxy
-│   │   └── elevenlabs/
-│   │       └── token/      # ElevenLabs token generation proxy
-│   ├── layout.tsx          # Root layout
-│   ├── page.tsx            # Home page with platform toggle
-│   └── globals.css         # Global styles
-├── components/
-│   ├── VapiWidget.tsx      # Main Vapi integration component
-│   ├── ElevenLabsWidget.tsx # Main ElevenLabs integration component
-│   ├── VapiVisualization.tsx # STT audio visualization with speech indicators
-│   └── VapiSphereVisualization.tsx # 3D sphere visualization
-├── hooks/
-│   ├── useVapi.ts          # Custom hook for Vapi functionality
-│   └── useElevenLabs.ts    # Custom hook for ElevenLabs functionality
-├── ENV_TEMPLATE.md         # Environment variables template
-├── INTEGRATION_NOTES.md    # Detailed ElevenLabs integration notes
-└── package.json            # Dependencies and scripts
-```
-
-## Usage
-
-### Using the VapiWidget Component
-
-The `VapiWidget` component provides a complete voice interface:
+### Basic Voice Call
 
 ```tsx
 import { VapiWidget } from "@/components/VapiWidget";
 
-export default function Page() {
+export default function VoicePage() {
   return <VapiWidget />;
 }
 ```
 
-### Using the useVapi Hook
-
-For custom implementations, use the `useVapi` hook:
+### Custom Integration
 
 ```tsx
 import { useVapi } from "@/hooks/useVapi";
 
-const MyComponent = () => {
-  const { 
-    call, 
-    endCall, 
-    isCallActive, 
-    messages,
-    isUserSpeaking,
-    isSpeaking,
-    volumeLevel
-  } = useVapi();
+const VoiceAssistant = () => {
+  const { call, endCall, isCallActive, volumeLevel } = useVapi();
 
   return (
     <div>
-      <button onClick={() => call("assistant-id")}>Start Call</button>
-      {isCallActive && <button onClick={endCall}>End Call</button>}
-      <div>
-        User Speaking: {isUserSpeaking ? "🗣️" : "🔇"}
-        AI Speaking: {isSpeaking ? "🗣️" : "🔇"}
-        Volume: {volumeLevel}%
-      </div>
-      {messages.map((msg, i) => (
-        <div key={i}>{msg.content}</div>
-      ))}
+      <button onClick={() => call("assistant-id")}>
+        Start Conversation
+      </button>
+      {isCallActive && (
+        <>
+          <div>Volume: {volumeLevel}%</div>
+          <button onClick={endCall}>End Call</button>
+        </>
+      )}
     </div>
   );
 };
 ```
 
-## Environment Variables
+### Web Search Integration
 
-### Vapi Configuration
-| Variable | Description | Required | Security |
-|----------|-------------|----------|----------|
-| `NEXT_PUBLIC_VAPI_PUBLIC_KEY` | Your Vapi public key for web calls | Yes* | Exposed to browser |
-| `VAPI_API_KEY` | Your Vapi API key for phone calls | Yes* | Server-only |
-| `NEXT_PUBLIC_VAPI_ASSISTANT_ID` | Your Vapi Assistant ID | Recommended | Exposed to browser |
-| `NEXT_PUBLIC_VAPI_PHONE_NUMBER_ID` | Your Vapi Phone Number ID | Optional | Exposed to browser |
+See [PERPLEXITY_INTEGRATION.md](PERPLEXITY_INTEGRATION.md) for detailed setup instructions.
 
-*You need at least the public key for web calls. API key needed for phone calls.
+---
 
-### ElevenLabs Configuration
-| Variable | Description | Required | Security |
-|----------|-------------|----------|----------|
-| `NEXT_PUBLIC_ELEVENLABS_API_KEY` | Your ElevenLabs API key | Yes | Exposed to browser |
-| `ELEVENLABS_API_KEY` | Server-side API key for token generation | Optional | Server-only |
-| `NEXT_PUBLIC_ELEVENLABS_AGENT_ID` | Your ElevenLabs Agent ID | Recommended | Exposed to browser |
+## 🏗️ Project Structure
 
-## Security
+```
+VAPI_MEM/
+├── app/
+│   ├── api/                    # Server-side API routes
+│   │   ├── vapi/               # Vapi integration endpoints
+│   │   │   ├── call/           # Phone call proxy
+│   │   │   ├── control/        # Call control
+│   │   │   └── perplexity-webhook/  # Search webhook
+│   │   ├── elevenlabs/         # ElevenLabs endpoints
+│   │   │   └── token/          # Token generation
+│   │   └── perplexity/         # Perplexity endpoints
+│   │       └── search/         # Search proxy
+│   ├── layout.tsx              # Root layout
+│   ├── page.tsx                # Homepage
+│   └── globals.css             # Global styles
+├── components/
+│   ├── VapiWidget.tsx          # Main Vapi UI
+│   ├── ElevenLabsWidget.tsx    # ElevenLabs UI
+│   ├── VapiVisualization.tsx   # 2D audio visualization
+│   └── VapiSphereVisualization.tsx  # 3D sphere
+├── hooks/
+│   ├── useVapi.ts              # Vapi React hook
+│   └── useElevenLabs.ts        # ElevenLabs hook
+├── ENV_TEMPLATE.md             # Environment variables
+├── INTEGRATION_NOTES.md        # ElevenLabs guide
+├── PERPLEXITY_INTEGRATION.md   # Perplexity setup
+└── package.json                # Dependencies
+```
 
-This project implements security best practices to protect API keys:
+---
 
-### ✅ Implemented Security Features
+## 🔧 Available Scripts
 
-1. **API Route Proxying**: Vapi phone calls now go through Next.js API routes (`/api/vapi/call`, `/api/vapi/control`)
-   - Server-side API keys never exposed to the browser
-   - Direct API calls from client removed
+| Script | Description |
+|--------|-------------|
+| `npm run dev` | Start development server |
+| `npm run build` | Build for production |
+| `npm run start` | Start production server |
+| `npm run lint` | Run ESLint |
 
-2. **Environment Variable Separation**:
-   - `NEXT_PUBLIC_*` variables: Exposed to browser (use public keys only)
-   - Server-only variables: Never leave the server (API routes only)
+---
 
-3. **HTTPS Enforcement**: All API communications encrypted in transit
+## 📚 Documentation
 
-### ⚠️ Security Considerations
+### Platform Guides
+- 📖 [Environment Setup](ENV_TEMPLATE.md) - API key configuration
+- 🎤 [ElevenLabs Integration](INTEGRATION_NOTES.md) - Platform-specific guide
+- 🔍 [Perplexity Setup](PERPLEXITY_INTEGRATION.md) - Web search integration
 
-**Client-Side Limitations**:
-- Vapi Web SDK and ElevenLabs React SDK require client-side public keys
-- These are embedded in the browser bundle
-- Use public keys with minimal permissions
-
-**Best Practices**:
-- Never commit `.env.local` to version control
-- Use public keys with limited scopes/permissions
-- Rotate keys periodically
-- Monitor API usage for unauthorized access
-- Use HTTPS in production
-
-See `ENV_TEMPLATE.md` for detailed security notes.
-
-## Available Scripts
-
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run start` - Start production server
-- `npm run lint` - Run ESLint
-
-## Documentation
-
-### Vapi
+### API References
 - [Vapi Documentation](https://docs.vapi.ai)
-- [Vapi Dashboard](https://dashboard.vapi.ai)
-- [API Reference](https://docs.vapi.ai/api-reference)
+- [ElevenLabs Docs](https://elevenlabs.io/docs)
+- [Perplexity API](https://docs.perplexity.ai)
 
-### ElevenLabs
-- [ElevenLabs Documentation](https://elevenlabs.io/docs)
-- [ElevenLabs Dashboard](https://elevenlabs.io/app)
-- [Conversational AI Guide](https://elevenlabs.io/docs/conversational-ai)
-- **Note**: See [INTEGRATION_NOTES.md](INTEGRATION_NOTES.md) for current integration status
+---
 
-## Troubleshooting
+## 🛡️ Security
 
-### "Vapi API key is not set" Error
+### Best Practices
 
-Make sure you have created a `.env.local` file with your API key or public key:
+✅ **Implemented:**
+- Server-side API key proxying
+- Environment variable separation
+- HTTPS enforcement
+- Secure WebSocket connections
 
-```env
-NEXT_PUBLIC_VAPI_PUBLIC_KEY=your_key_here
-# OR
-NEXT_PUBLIC_VAPI_API_KEY=your_key_here
+⚠️ **Important:**
+- Never commit `.env.local`
+- Use public keys for client-side
+- Rotate keys regularly
+- Monitor API usage
+
+---
+
+## 🤝 Contributing
+
+We welcome contributions! Here's how you can help:
+
+1. **Fork** the repository
+2. **Create** a feature branch (`git checkout -b feature/amazing-feature`)
+3. **Commit** your changes (`git commit -m 'Add amazing feature'`)
+4. **Push** to the branch (`git push origin feature/amazing-feature`)
+5. **Open** a Pull Request
+
+### Development Guidelines
+
+- Write clean, maintainable code
+- Add TypeScript types everywhere
+- Follow existing code style
+- Add tests for new features
+- Update documentation
+
+---
+
+## 🐛 Troubleshooting
+
+### Common Issues
+
+**"Vapi API key is not set"**
+```bash
+# Ensure .env.local exists with correct keys
+cat .env.local | grep VAPI
 ```
 
-### "ElevenLabs API key is not set" Error
+**No audio/voice output**
+- Check browser permissions
+- Verify microphone access
+- Ensure HTTPS or localhost
+- Test with another browser
 
-Make sure you have added your ElevenLabs API key to `.env.local`:
+**Webhook not working**
+- Verify public URL (use ngrok for local)
+- Check Vapi dashboard configuration
+- Review server logs
+- Test endpoint manually
 
-```env
-NEXT_PUBLIC_ELEVENLABS_API_KEY=your_key_here
-```
+**Need more help?**
+- Check [Issues](https://github.com/yourusername/VAPI_MEM/issues)
+- Read platform docs
+- Join [Discussions](https://github.com/yourusername/VAPI_MEM/discussions)
 
-### Call Not Starting
+---
 
-**For Vapi:**
-- Verify your Assistant ID is correct
-- Check that your API key is valid
-- Ensure you have sufficient credits in your Vapi account
+## 🌟 Showcase
 
-**For ElevenLabs:**
-- Verify your Agent ID is correct
-- Check that your API key is valid
-- Ensure you have sufficient credits in your ElevenLabs account
-- Note: WebRTC signaling is currently incomplete (see [INTEGRATION_NOTES.md](INTEGRATION_NOTES.md))
+Built with:
 
-### No Audio
+<div align="center">
 
-- Check browser permissions for microphone access
-- Ensure you're using HTTPS or localhost (required for microphone access)
-- Try refreshing the page and allowing microphone permissions again
+[![Next.js](https://img.shields.io/badge/Next.js-000000?logo=next.js&logoColor=white)](https://nextjs.org/)
+[![React](https://img.shields.io/badge/React-61DAFB?logo=react&logoColor=black)](https://react.dev/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
+[![Three.js](https://img.shields.io/badge/Three.js-000000?logo=three.js&logoColor=white)](https://threejs.org/)
 
-## License
+</div>
 
-MIT
+Powered by:
 
-## Support
+<div align="center">
 
-For issues related to:
-- **This integration**: Open an issue in this repository
-- **Vapi API**: Contact [Vapi Support](https://docs.vapi.ai) or join their [Discord](https://discord.gg/vapi)
-- **ElevenLabs API**: Contact [ElevenLabs Support](https://elevenlabs.io/docs/support)
+[![Vapi](https://img.shields.io/badge/Vapi-6366F1?logo=vapi&logoColor=white)](https://vapi.ai)
+[![ElevenLabs](https://img.shields.io/badge/ElevenLabs-000000?logo=elevenlabs&logoColor=white)](https://elevenlabs.io)
+[![Perplexity](https://img.shields.io/badge/Perplexity-AI-007FFF?logo=perplexity&logoColor=white)](https://perplexity.ai)
+
+</div>
+
+---
+
+## 📊 Roadmap
+
+- [ ] Multi-language support
+- [ ] Voice cloning integration
+- [ ] Custom AI models
+- [ ] Analytics dashboard
+- [ ] Recording playback
+- [ ] Team collaboration
+- [ ] Voice commands
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+## 🙏 Acknowledgments
+
+- [Vapi](https://vapi.ai) for amazing voice infrastructure
+- [ElevenLabs](https://elevenlabs.io) for realistic voice synthesis
+- [Perplexity](https://perplexity.ai) for powerful search capabilities
+- [Next.js](https://nextjs.org) team for the incredible framework
+
+---
+
+## 📞 Support
+
+<div align="center">
+
+**Need help or have questions?**
+
+[![GitHub Discussions](https://img.shields.io/badge/GitHub_Discussions-181717?logo=github&logoColor=white)](https://github.com/yourusername/VAPI_MEM/discussions)
+[![Discord](https://img.shields.io/badge/Discord-5865F2?logo=discord&logoColor=white)](https://discord.gg/vapi)
+[![Email](https://img.shields.io/badge/Email-D14836?logo=gmail&logoColor=white)](mailto:support@example.com)
+
+Made with ❤️ by the open source community
+
+</div>
+
+---
+
+<div align="center">
+
+**[⬆ Back to Top](#-voice-ai-studio)**
+
+⭐ Star this repo if you found it helpful!
+
+</div>
