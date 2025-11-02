@@ -44,6 +44,18 @@ NEXT_PUBLIC_ELEVENLABS_AGENT_ID=your_elevenlabs_agent_id_here
 # ============================================
 # For search functionality via Vapi assistant
 PERPLEXITY_API_KEY=your_perplexity_api_key_here
+
+# ============================================
+# Supermemory Configuration
+# ============================================
+# For document search via Vapi assistant
+SUPERMEMORY_API_KEY=your_supermemory_api_key_here
+
+# ============================================
+# Google Calendar Configuration
+# ============================================
+# For calendar integration via Vapi assistant
+GOOGLE_CALENDAR_ACCESS_TOKEN=your_google_calendar_access_token_here
 ```
 
 ## How API Keys Are Used
@@ -58,6 +70,12 @@ PERPLEXITY_API_KEY=your_perplexity_api_key_here
 
 ### Perplexity
 - **Server-side (API routes)**: `PERPLEXITY_API_KEY` - Used by `/api/perplexity/search` and `/api/vapi/perplexity-webhook` for search functionality
+
+### Supermemory
+- **Server-side (API routes)**: `SUPERMEMORY_API_KEY` - Used by `/api/supermemory/search` and `/api/vapi/supermemory-webhook` for document search
+
+### Google Calendar
+- **Server-side (API routes)**: `GOOGLE_CALENDAR_ACCESS_TOKEN` - Used by `/api/calendar/events` and `/api/vapi/calendar-webhook` for calendar operations
 
 ## Getting Your API Keys
 
@@ -78,4 +96,19 @@ PERPLEXITY_API_KEY=your_perplexity_api_key_here
 3. Navigate to API Keys section
 4. Create a new API key
 5. Copy your API key
+
+### Supermemory
+1. Go to [Supermemory](https://supermemory.ai)
+2. Sign up or log in to your account
+3. Navigate to API Keys section
+4. Create a new API key
+5. Copy your API key
+
+### Google Calendar
+1. Go to [Google Cloud Console](https://console.cloud.google.com/)
+2. Create a new project or select existing one
+3. Enable Google Calendar API
+4. Create credentials (OAuth 2.0 Client ID)
+5. Generate an access token with calendar scopes
+6. Copy the access token
 

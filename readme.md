@@ -4,7 +4,7 @@
 
 <div align="center">
 
-**A beautiful, production-ready voice AI platform integrating Vapi, ElevenLabs, and Perplexity**
+**A beautiful, production-ready voice AI platform integrating Vapi, ElevenLabs, Perplexity, Supermemory, and Google Calendar**
 
 [![Next.js](https://img.shields.io/badge/Next.js-15-black)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.7-blue)](https://www.typescriptlang.org/)
@@ -28,10 +28,16 @@
 - **ElevenLabs** - Alternative voice platform with conversational AI
 - **Easy Toggle** - Switch between platforms with a single click
 
-### 🔍 Real-time Search
+### 🔍 Real-time Search & Knowledge
 - **Perplexity Integration** - Web search powered by advanced AI
+- **Supermemory Integration** - Document search and knowledge base
 - **Voice-Optimized Responses** - Natural language answers perfect for audio
 - **Source Attribution** - Transparent citations for every response
+
+### 📅 Calendar & Productivity
+- **Google Calendar Integration** - Manage events via voice
+- **List Upcoming Events** - Check schedule naturally
+- **Create Events** - Schedule meetings with voice commands
 
 ### 🎨 Beautiful UI/UX
 - **3D Visualizations** - Interactive sphere visualization using Three.js
@@ -109,12 +115,20 @@ NEXT_PUBLIC_ELEVENLABS_AGENT_ID=your_agent_id
 
 # Optional: Perplexity (for web search)
 PERPLEXITY_API_KEY=your_perplexity_key
+
+# Optional: Supermemory (for document search)
+SUPERMEMORY_API_KEY=your_supermemory_key
+
+# Optional: Google Calendar
+GOOGLE_CALENDAR_ACCESS_TOKEN=your_google_calendar_token
 ```
 
 **Get Your API Keys:**
 - [Vapi Dashboard](https://dashboard.vapi.ai)
 - [ElevenLabs Dashboard](https://elevenlabs.io/app)
 - [Perplexity API Platform](https://www.perplexity.ai/api-platform)
+- [Supermemory](https://supermemory.ai)
+- [Google Calendar API](https://console.cloud.google.com/)
 
 ---
 
@@ -154,9 +168,11 @@ const VoiceAssistant = () => {
 };
 ```
 
-### Web Search Integration
+### Integration Guides
 
-See [PERPLEXITY_INTEGRATION.md](PERPLEXITY_INTEGRATION.md) for detailed setup instructions.
+- **Web Search**: [Perplexity Integration](PERPLEXITY_INTEGRATION.md)
+- **Document Search**: [Supermemory Integration](SUPERMEMORY_INTEGRATION.md)
+- **Calendar**: [Google Calendar Integration](GOOGLE_CALENDAR_INTEGRATION.md)
 
 ---
 
@@ -169,11 +185,17 @@ VAPI_MEM/
 │   │   ├── vapi/               # Vapi integration endpoints
 │   │   │   ├── call/           # Phone call proxy
 │   │   │   ├── control/        # Call control
-│   │   │   └── perplexity-webhook/  # Search webhook
+│   │   │   ├── perplexity-webhook/  # Search webhook
+│   │   │   ├── supermemory-webhook/ # Document webhook
+│   │   │   └── calendar-webhook/    # Calendar webhook
 │   │   ├── elevenlabs/         # ElevenLabs endpoints
 │   │   │   └── token/          # Token generation
-│   │   └── perplexity/         # Perplexity endpoints
-│   │       └── search/         # Search proxy
+│   │   ├── perplexity/         # Perplexity endpoints
+│   │   │   └── search/         # Search proxy
+│   │   ├── supermemory/        # Supermemory endpoints
+│   │   │   └── search/         # Document search
+│   │   └── calendar/           # Calendar endpoints
+│   │       └── events/         # Calendar operations
 │   ├── layout.tsx              # Root layout
 │   ├── page.tsx                # Homepage
 │   └── globals.css             # Global styles
@@ -188,6 +210,8 @@ VAPI_MEM/
 ├── ENV_TEMPLATE.md             # Environment variables
 ├── INTEGRATION_NOTES.md        # ElevenLabs guide
 ├── PERPLEXITY_INTEGRATION.md   # Perplexity setup
+├── SUPERMEMORY_INTEGRATION.md  # Supermemory setup
+├── GOOGLE_CALENDAR_INTEGRATION.md # Calendar setup
 └── package.json                # Dependencies
 ```
 
@@ -210,11 +234,15 @@ VAPI_MEM/
 - 📖 [Environment Setup](ENV_TEMPLATE.md) - API key configuration
 - 🎤 [ElevenLabs Integration](INTEGRATION_NOTES.md) - Platform-specific guide
 - 🔍 [Perplexity Setup](PERPLEXITY_INTEGRATION.md) - Web search integration
+- 📚 [Supermemory Setup](SUPERMEMORY_INTEGRATION.md) - Document search integration
+- 📅 [Google Calendar Setup](GOOGLE_CALENDAR_INTEGRATION.md) - Calendar integration
 
 ### API References
 - [Vapi Documentation](https://docs.vapi.ai)
 - [ElevenLabs Docs](https://elevenlabs.io/docs)
 - [Perplexity API](https://docs.perplexity.ai)
+- [Supermemory](https://supermemory.ai)
+- [Google Calendar API](https://developers.google.com/calendar)
 
 ---
 
