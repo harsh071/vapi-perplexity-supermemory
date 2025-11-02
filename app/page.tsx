@@ -1,23 +1,40 @@
 "use client";
 
+import { useState } from "react";
 import { VapiWidget } from "@/components/VapiWidget";
+import { ElevenLabsWidget } from "@/components/ElevenLabsWidget";
 
 export default function Home() {
-  return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-8 md:p-24">
-      <div className="w-full max-w-4xl space-y-8">
-        <div className="text-center space-y-4">
-          <h1 className="text-4xl font-bold tracking-tight">
-            Vapi Voice Assistant
-          </h1>
-          <p className="text-lg text-gray-600 dark:text-gray-400">
-            Click the button below to start a conversation with our AI voice
-            assistant
-          </p>
-        </div>
+  const [activeWidget, setActiveWidget] = useState<"vapi" | "elevenlabs">("vapi");
 
-        <VapiWidget />
+  return (
+    <main className="min-h-screen bg-gradient-to-br from-slate-100 via-blue-50 to-indigo-100">
+      {/* Toggle buttons at the top */}
+      <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 flex gap-2 bg-white/30 backdrop-blur-xl rounded-full p-1 shadow-lg border border-white/40">
+        <button
+          onClick={() => setActiveWidget("vapi")}
+          className={`px-6 py-2 rounded-full transition-all font-semibold ${
+            activeWidget === "vapi"
+              ? "bg-indigo-600/90 text-white shadow-lg"
+              : "text-slate-700 hover:bg-white/50"
+          }`}
+        >
+          Vapi
+        </button>
+        <button
+          onClick={() => setActiveWidget("elevenlabs")}
+          className={`px-6 py-2 rounded-full transition-all font-semibold ${
+            activeWidget === "elevenlabs"
+              ? "bg-indigo-600/90 text-white shadow-lg"
+              : "text-slate-700 hover:bg-white/50"
+          }`}
+        >
+          ElevenLabs
+        </button>
       </div>
+
+      {/* Render active widget */}
+      {activeWidget === "vapi" ? <VapiWidget /> : <ElevenLabsWidget />}
     </main>
   );
 }

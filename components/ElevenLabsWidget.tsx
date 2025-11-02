@@ -1,29 +1,21 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useVapi } from "@/hooks/useVapi";
+import { useElevenLabs } from "@/hooks/useElevenLabs";
 import { VapiSphereVisualization } from "@/components/VapiSphereVisualization";
 import { Settings, Upload, X, Mic, MicOff } from "lucide-react";
 
-export const VapiWidget = () => {
-  const [assistantId, setAssistantId] = useState("");
-  const [usePhoneCall, setUsePhoneCall] = useState(false);
-  const [customerNumber, setCustomerNumber] = useState("");
-  const [phoneNumberId, setPhoneNumberId] = useState("");
+export const ElevenLabsWidget = () => {
+  const [agentId, setAgentId] = useState("");
   const [showSettings, setShowSettings] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   
   // Load configuration from environment variables on mount
   useEffect(() => {
-    const envAssistantId = process.env.NEXT_PUBLIC_VAPI_ASSISTANT_ID;
-    const envPhoneNumberId = process.env.NEXT_PUBLIC_VAPI_PHONE_NUMBER_ID;
-    
-    if (envAssistantId) {
-      setAssistantId(envAssistantId);
-    }
-    
-    if (envPhoneNumberId) {
-      setPhoneNumberId(envPhoneNumberId);
+    const envAgentId = process.env.NEXT_PUBLIC_ELEVENLABS_AGENT_ID;
+      
+    if (envAgentId) {
+      setAgentId(envAgentId);
     }
   }, []);
 
@@ -37,27 +29,15 @@ export const VapiWidget = () => {
     isUserSpeaking,
     status,
     error,
-  } = useVapi();
+  } = useElevenLabs();
 
   const handleStartCall = async () => {
-    if (!assistantId.trim()) {
-      alert("Please enter an Assistant ID");
+    if (!agentId.trim()) {
+      alert("Please enter an Agent ID");
       return;
     }
 
-    if (usePhoneCall) {
-      if (!customerNumber.trim() || !phoneNumberId.trim()) {
-        alert("Please enter Customer Number and Phone Number ID for phone calls");
-        return;
-      }
-      await call(assistantId, {
-        usePhoneCall: true,
-        customerNumber: customerNumber.trim(),
-        phoneNumberId: phoneNumberId.trim(),
-      });
-    } else {
-      await call(assistantId);
-    }
+    await call(agentId);
   };
 
   const handleEndCall = () => {
@@ -67,11 +47,10 @@ export const VapiWidget = () => {
   const handleShare = () => {
     if (navigator.share) {
       navigator.share({
-        title: "Voice Assistant Call",
+        title: "ElevenLabs Voice Agent",
         text: "Check out this voice assistant!",
       });
     } else {
-      // Fallback: copy to clipboard
       navigator.clipboard.writeText(window.location.href);
       alert("Link copied to clipboard!");
     }
@@ -84,84 +63,30 @@ export const VapiWidget = () => {
         <div className="w-full max-w-md bg-white/30 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/40 p-8 space-y-6">
           <div className="text-center space-y-2">
             <h1 className="text-2xl font-semibold text-slate-800">
-              Voice Assistant
+              ElevenLabs Voice Agent
             </h1>
             <p className="text-sm text-slate-600">
-              Enter your Assistant ID to begin
+              Enter your Agent ID to begin
             </p>
           </div>
 
           <div className="space-y-4">
             <div className="space-y-2">
               <label
-                htmlFor="assistant-id"
+                htmlFor="agent-id"
                 className="block text-sm font-medium text-slate-700"
               >
-                Assistant ID
+                Agent ID
               </label>
               <input
-                id="assistant-id"
+                id="agent-id"
                 type="text"
-                value={assistantId}
-                onChange={(e) => setAssistantId(e.target.value)}
-                placeholder="Enter your Vapi Assistant ID"
+                value={agentId}
+                onChange={(e) => setAgentId(e.target.value)}
+                placeholder="Enter your ElevenLabs Agent ID"
                 className="w-full px-4 py-3 bg-white/50 backdrop-blur-sm border border-white/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 text-slate-800 placeholder:text-slate-400 transition-all"
               />
             </div>
-
-            <div className="flex items-center gap-2">
-              <input
-                id="use-phone-call"
-                type="checkbox"
-                checked={usePhoneCall}
-                onChange={(e) => setUsePhoneCall(e.target.checked)}
-                className="w-4 h-4 text-indigo-600 border-slate-300 rounded focus:ring-indigo-500 bg-white/50"
-              />
-              <label
-                htmlFor="use-phone-call"
-                className="text-sm font-medium text-slate-700"
-              >
-                Use Phone Call
-              </label>
-            </div>
-
-            {usePhoneCall && (
-              <>
-                <div className="space-y-2">
-                  <label
-                    htmlFor="customer-number"
-                    className="block text-sm font-medium text-slate-700"
-                  >
-                    Customer Phone Number
-                  </label>
-                  <input
-                    id="customer-number"
-                    type="tel"
-                    value={customerNumber}
-                    onChange={(e) => setCustomerNumber(e.target.value)}
-                    placeholder="+1234567890"
-                    className="w-full px-4 py-3 bg-white/50 backdrop-blur-sm border border-white/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 text-slate-800 placeholder:text-slate-400 transition-all"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <label
-                    htmlFor="phone-number-id"
-                    className="block text-sm font-medium text-slate-700"
-                  >
-                    Phone Number ID
-                  </label>
-                  <input
-                    id="phone-number-id"
-                    type="text"
-                    value={phoneNumberId}
-                    onChange={(e) => setPhoneNumberId(e.target.value)}
-                    placeholder="Enter your Vapi Phone Number ID"
-                    className="w-full px-4 py-3 bg-white/50 backdrop-blur-sm border border-white/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 text-slate-800 placeholder:text-slate-400 transition-all"
-                  />
-                </div>
-              </>
-            )}
           </div>
 
           {error && (
@@ -172,7 +97,7 @@ export const VapiWidget = () => {
 
           <button
             onClick={handleStartCall}
-            disabled={isLoading || !assistantId.trim()}
+            disabled={isLoading || !agentId.trim()}
             className="w-full px-6 py-3 bg-indigo-600/90 backdrop-blur-sm hover:bg-indigo-700/90 disabled:bg-slate-400/50 disabled:cursor-not-allowed text-white font-semibold rounded-xl transition-all shadow-lg shadow-indigo-500/30 border border-indigo-400/30"
           >
             {isLoading ? "Connecting..." : "Start Call"}
@@ -258,3 +183,4 @@ export const VapiWidget = () => {
     </div>
   );
 };
+
