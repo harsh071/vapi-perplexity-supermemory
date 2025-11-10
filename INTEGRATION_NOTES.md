@@ -36,7 +36,7 @@ NEXT_PUBLIC_ELEVENLABS_API_KEY=your_api_key_here
 NEXT_PUBLIC_ELEVENLABS_AGENT_ID=your_agent_id_here  # Optional, for auto-loading
 ```
 
-### API Endpoints Used
+### API Endpoints Used in the app
 
 ```
 POST https://api.elevenlabs.io/v1/convai/conversation/webrtc/token
