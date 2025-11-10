@@ -28,7 +28,7 @@ The integration uses the official `@elevenlabs/react` package which provides:
 
 The `@elevenlabs/elevenlabs-js` package is designed for Node.js environments and cannot be used directly in the browser.
 
-### Environment
+### Environment Variables
 
 Add to your `.env.local`:
 ```
